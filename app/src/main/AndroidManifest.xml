@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,6 +26,10 @@
 
         <!--<receiver android:name=".receiver.NetworkStateReceiver" />-->
         <!--this receiver is registered/unregistered dynamically & locally in activity -->
+
+        <service
+            android:name=".networking.NetworkIntentService"
+            android:exported="false" />
 
     </application>
 

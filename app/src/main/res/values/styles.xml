@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -28,6 +28,12 @@
 
     <style name="MatchWrap.Gravity_Center">
         <item name="android:gravity">center</item>
+    </style>
+
+    <style name="MatchWrap.Gravity_Center.Informer">
+        <item name="android:textColor">@android:color/holo_red_light</item>
+        <item name="android:text">@string/testingText</item>
+        <item name="android:layout_margin">@dimen/size_8</item>
     </style>
 
     <!-- wrap / match -->

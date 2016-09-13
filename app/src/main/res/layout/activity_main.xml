@@ -3,11 +3,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/MatchMatch"
-    tools:context=".activities.MainActivity">
+    android:padding="@dimen/size_16"
+    tools:context=".activity.MainActivity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:id="@+id/wvTest"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tvInetStatus"
+        style="@style/MatchWrap.Gravity_Center.Informer"
+        android:layout_above="@+id/tvWiFiStatus" />
+
+    <TextView
+        android:id="@+id/tvWiFiStatus"
+        style="@style/MatchWrap.Gravity_Center.Informer"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

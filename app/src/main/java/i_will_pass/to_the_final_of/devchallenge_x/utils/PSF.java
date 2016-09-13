@@ -8,14 +8,20 @@ package i_will_pass.to_the_final_of.devchallenge_x.utils;
  */
 public class PSF {
 
+    public static final String RSS_FEED_URL = "url of the current RSS-feed";
+    public static final String RSS_RESULT = "response from the network";
+    public static final String N_I_SERVICE = "NetworkIntentService";
+
+    public static final String S_ACTIVITY_HASH = "hashCode of current activity instance";
+
+    public static final int R_CODE_SERVICE = 10; // for intent starting NetworkIntentService \
+    public static final int P_I_SERVICE = 100; // for PendingIntent back from NetworkIntentService \
 }
 /*
 // SOME EXPLANATION ================================================================================
 
 i decided to avoid Hungarian Notation here because it's not necessary any longer in modern IDEs \
 
-using OkHTTP instead of HttpUrlConnection because of this - https://habrahabr.ru/post/308522/
-
-first of all architecture will be like MVC - based on activities filled with logic \
+first of all architecture will be like MVC - based on system components filled with logic \
 
 */

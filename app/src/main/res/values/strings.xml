@@ -4,5 +4,11 @@
 
     <string name="defaultPodcastUrl">http://cdn.radio-t.com/rt_podcast512.mp3</string>
     <string name="nnnPodcastUrl">http://cdn.radio-t.com/rt_podcastNNN.mp3</string>
+    <string name="testingText">text for test</string>
+
+    <string name="inetConnected">Internet connected</string>
+    <string name="inetDisconnected">Internet disconnected</string>
+    <string name="wifiIsAvailable">WiFi is available</string>
+    <string name="wifiIsUnavailable">WiFi is unavailable</string>
 
 </resources>
