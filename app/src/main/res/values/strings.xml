@@ -3,5 +3,6 @@
     <string name="app_name">DevChallenge_X</string>
 
     <string name="defaultPodcastUrl">http://cdn.radio-t.com/rt_podcast512.mp3</string>
+    <string name="nnnPodcastUrl">http://cdn.radio-t.com/rt_podcastNNN.mp3</string>
 
 </resources>

@@ -1,11 +1,66 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
+    <!--=========================================================================================-->
+
+    <!-- match / match -->
+
+    <style name="MatchMatch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="MatchMatch.Orient_Vertical">
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!-- match / wrap -->
+
+    <style name="MatchWrap">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="MatchWrap.Gravity_Center">
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- wrap / match -->
+
+    <style name="WrapMatch">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <!-- wrap / wrap -->
+
+    <style name="WrapWrap">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- weight -->
+
+    <style name="WeightHeight">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <style name="WeightWidth">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <!-- others -->
+
+    <style name="IconSmall">
+        <item name="android:layout_width">@dimen/squareIconSmallSize</item>
+        <item name="android:layout_height">@dimen/squareIconSmallSize</item>
     </style>
 
 </resources>
