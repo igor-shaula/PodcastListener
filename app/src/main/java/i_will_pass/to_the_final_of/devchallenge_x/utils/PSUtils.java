@@ -7,24 +7,46 @@ import android.net.NetworkInfo;
 
 /**
  * shared methods container \
- * <p/>
+ * <p>
  * PSUtils = Public Static Utility methods \
  */
 public class PSUtils {
 
-    // universal check - I decided to use only WiFi for nice look and feel of processing pictures \
+    private static final String CN = "PSUtils ` ";
+
+    // created for avoiding code duplication in two network state checks \
+    private static NetworkInfo getNetworkInfo(Context context) {
+        if (context == null) {
+            L.a(CN + "context is null !!!");
+            return null;
+        }
+        // now we assume that context is valid \
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        // i assume that connectivityManager cannot be null - because system service exists always \
+        return connectivityManager.getActiveNetworkInfo();
+    }
+
+    // universal check of internet availability \
     public static boolean isInternetEnabled(Context context) {
 
-        ConnectivityManager connectivityManager = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        // i assume that connectivityManager cannot be null by default - because system service exists always \
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-
+        NetworkInfo networkInfo = getNetworkInfo(context);
         // simplified style of writing - I like this \
         return networkInfo != null && networkInfo.isConnected()
+                && (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE
+                || networkInfo.getType() == ConnectivityManager.TYPE_MOBILE_DUN
+                || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET
+                || networkInfo.getType() == ConnectivityManager.TYPE_WIMAX
+                || networkInfo.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    // check for detection of WiFi state - files and streams will be got only over WiFi \
+    public static boolean isHighSpeedAvailable(Context context) {
+
+        NetworkInfo networkInfo = getNetworkInfo(context);
+        return networkInfo != null && networkInfo.isConnected()
                 && (networkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                || networkInfo.getType() == ConnectivityManager.TYPE_MOBILE
-                || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET);
+                || networkInfo.getType() == ConnectivityManager.TYPE_WIMAX);
     }
 
     // crazy simple magic method - it finds my already launched service among others \
@@ -36,26 +58,3 @@ public class PSUtils {
         return false;
     }
 }
-// UNUSED SNIPPETS =================================================================================
-/*
-        if (Build.VERSION.SDK_INT >= 15) {
-            // use facebook SDK here \
-        } else {
-            // currently it's unclear about what to do in this situation \
-        }
-*/
-/*
-        // used this because standard way via cmd & keytool gave wrong results \
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "shaula.igor.test_facebook",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                L.l("key hash = " + Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException e) {
-            // NOP
-        }
-*/
