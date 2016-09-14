@@ -24,14 +24,13 @@ public class NetworkIntentService extends IntentService {
 
     public static final String CN = "NetworkIntentService ` ";
 
-    private static final String TAG_WHERE = "item"; // we're currently interested only in those tags \
-    private static final String TAG_WHAT = "title"; // names are the only needed tags inside streams tags \
+    private static final String TAG_ITEM = "item"; // we're currently interested only in those tags \
+    private static final String TAG_TITLE = "title"; // names are the only needed tags inside streams tags \
 
     // default constructor is required here by manifest \
     public NetworkIntentService() {
         // giving name to our worker thread - it's important only for debugging \
         super(CN.replace(' ', '`'));
-        L.l(CN + CN.replace(' ', '`'));
         // i decided not to place chars to constants - just trying to keep simplicity \
     }
 
@@ -60,7 +59,6 @@ public class NetworkIntentService extends IntentService {
         } catch (PendingIntent.CanceledException e) {
             e.printStackTrace();
         }
-
 //        stopSelf(); // no need to stop the service here - it stops itself by default - it's checked \
     }
 
@@ -85,23 +83,26 @@ public class NetworkIntentService extends IntentService {
 
             while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
                 if (parser.getEventType() == XmlPullParser.START_TAG
-                        && parser.getName().equals(TAG_WHERE)) {
+                        && parser.getName().equals(TAG_ITEM)) {
                     parser.nextTag();
 
-                    if (parser.getName().equals(TAG_WHAT)) {
+                    if (parser.getName().equals(TAG_TITLE)) {
                         String content = parser.nextText();
 
                         stringList.add(content);
-                        L.l(CN + "TAG_WHAT: added to stringList = " + content);
+                        L.l(CN + "TAG_TITLE: added to stringList = " + content);
                     }
                 }
                 parser.next();
             }
             String[] stringArray = new String[stringList.size()];
-//            for (int i = 0; i < stringList.size(); i++) {
-//                stringArray[i] = stringList.get(i);
-//            }
-            // transporting elements from LinkedList to Array in a single queue \
+/*
+            // this way is obvious but inefficient because of long reading of LinkedList every time \
+            for (int i = 0; i < stringList.size(); i++) {
+                stringArray[i] = stringList.get(i);
+            }
+*/
+            // transporting elements from LinkedList to Array in one pass \
             int i = 0;
             for (String stringItem : stringList) {
                 stringArray[i] = stringItem;

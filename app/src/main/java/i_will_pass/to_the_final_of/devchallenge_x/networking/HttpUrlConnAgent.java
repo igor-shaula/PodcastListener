@@ -33,6 +33,7 @@ public class HttpUrlConnAgent {
             urlConnection = (HttpURLConnection) url.openConnection();
             InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
             receivedString = getStringFromInputStream(inputStream);
+            // i had to transfer InputStream to String because of closing this stream in finally \
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -44,32 +45,28 @@ public class HttpUrlConnAgent {
         return receivedString;
     }
 
-    // convert InputStream to String
-    private String getStringFromInputStream(InputStream is) {
+    // converting InputStream to String - utility for getStringFromWeb(...) \
+    private String getStringFromInputStream(InputStream inputStream) {
 
-        BufferedReader br = null;
-        StringBuilder sb = new StringBuilder();
-
-        String line;
+        BufferedReader bufferedReader = null;
+        String oneLine;
+        StringBuilder stringBuilder = new StringBuilder();
         try {
-
-            br = new BufferedReader(new InputStreamReader(is));
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            while ((oneLine = bufferedReader.readLine()) != null) {
+                stringBuilder.append(oneLine);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (br != null) {
+            if (bufferedReader != null) {
                 try {
-                    br.close();
+                    bufferedReader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-
-        return sb.toString();
+        return stringBuilder.toString();
     }
 }

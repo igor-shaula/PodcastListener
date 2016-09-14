@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
             unregisterReceiver(networkStateReceiver);
         }
     */
+
     @Override
     protected void onStart() {
         super.onStart();
