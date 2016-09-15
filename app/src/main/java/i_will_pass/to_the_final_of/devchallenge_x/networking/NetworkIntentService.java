@@ -118,31 +118,24 @@ public class NetworkIntentService extends IntentService {
             // main loop to scan every tag of received XML \
             while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
 
-                // we're looking only for starting tags, skipping everything else \
-//                if (parser.getEventType() == XmlPullParser.END_TAG) {
+                // after this check we'll process only starting tags, skipping everything else here \
                 if (parser.getEventType() != XmlPullParser.START_TAG) {
                     // if not start tag - it may be end tag, and if it's TAG_ITEM -> restoring flag \
-//                    if (parser.getName().equals(TAG_ITEM))
-                    // as nextTag gives either START or END_TAG, it's obvious we have the second one \
-                    if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equals(TAG_ITEM)) {
+                    if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equals(TAG_ITEM))
                         parsingItem = false; // in fact here this mode ends \
-                        L.l(CN + "parsingItem = " + parsingItem);
-                    }
+
                     // moving further to the next loop iteration with initial START_TAG check \
-//                    parser.nextTag();
                     parser.next();
                     continue;
                 }
 
                 tagCounter++;
-                L.l(CN + "STARTED PARSING TAG # " + tagCounter + " = " + parser.getName());
+                L.l(CN + "OUTER LOOPING TAG # " + tagCounter + " = " + parser.getName());
 
                 // here we previously left only inspection of starting tags \
-                if (parser.getName().equals(TAG_ITEM)) {
-                    // this flag has to switch on every encountered item tag \
+                if (parser.getName().equals(TAG_ITEM))
                     parsingItem = true;
-//                    L.l(CN + "parsingItem = " + parsingItem);
-                }
+
                 // i decided to additionally parse headers to get general info about this RSS-feed \
                 if (!parsingItem)
                     parseHeaderTag(parser);
@@ -153,7 +146,6 @@ public class NetworkIntentService extends IntentService {
                         infoEntityList.add(infoEntity);
                 }
 
-//                parser.nextTag();
                 parser.next();
             } // end of while-loop \\
 
@@ -217,30 +209,33 @@ public class NetworkIntentService extends IntentService {
     }
 
     // inner parsing loop inside outer parsing loop - for every item \
+    @SuppressWarnings("ConstantConditions")
     private InfoEntity parseItemBlock(XmlPullParser parser) throws XmlPullParserException, IOException {
         // as we're starting from TAG_ITEM - we have to move to the net tag just now \
         L.l(CN + "INNER ENTERING TAG = " + parser.getName());
         parser.next();
 
         // secondly parsing all items - we have to build objects from these variables \
-        String title = "";
-        String link = "";
-        String pubDate = "";
-        String mediaContentUrl = "";
+        String title = getString(R.string.defaultTitle);
+        String link = getString(R.string.defaultLink);
+        String pubDate = getString(R.string.defaultPubDate);
+        String mediaContentUrl = getString(R.string.defaultMediaContentUrl);
         long fileSize = 0;
-        String type = "";
-        String summary = "";
+        String type = getString(R.string.defaultType);
+        String summary = getString(R.string.defaultSummary);
 
-        if (parser.getName() == null) return null;
+        // for escaping endless loop while not changing obvious logic \
+        if (parser.getName() == null)
+            return null; // yes, men, sometimes this shit happens - tied with initial parser.next() \
 
-        // i guess we need inner loop here - to work directly inside item-tag \
+        // we need inner loop here - to work directly inside item-tag and set all its fields at once \
         while (!(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equals(TAG_ITEM))) {
-            L.l(CN + "INNER LOOPING TAG = " + parser.getName());
 
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 parser.next();
                 continue;
             }
+            L.l(CN + "inner looping tag = " + parser.getName());
 
             if (parser.getName().equals(TAG_ITEM)) break;
 

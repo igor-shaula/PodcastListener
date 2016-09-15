@@ -10,6 +10,15 @@
     <string name="inetDisconnected">Internet disconnected</string>
     <string name="wifiIsAvailable">WiFi is available</string>
     <string name="wifiIsUnavailable">WiFi is unavailable</string>
+
     <string name="repeatingChars">Темы наших слушателей Спонсор этого выпуска DigitalOcean аудио ● лог чата</string>
+
+    <string name="defaultTitle">no title</string>
+    <string name="defaultLink">no link</string>
+    <string name="defaultPubDate">unknown publication date</string>
+    <string name="defaultMediaContentUrl">no media for download</string>
+    <!-- long defaultFileSize = 0 - i decided to keep this data not in String -->
+    <string name="defaultType">unknown type</string>
+    <string name="defaultSummary">no summary info</string>
 
 </resources>
