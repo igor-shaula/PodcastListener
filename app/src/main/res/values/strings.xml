@@ -10,5 +10,6 @@
     <string name="inetDisconnected">Internet disconnected</string>
     <string name="wifiIsAvailable">WiFi is available</string>
     <string name="wifiIsUnavailable">WiFi is unavailable</string>
+    <string name="repeatingChars">Темы наших слушателей Спонсор этого выпуска DigitalOcean аудио ● лог чата</string>
 
 </resources>

@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
@@ -109,10 +110,15 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
             L.l(CN + "current activity hash = " + hashCode());
             L.l(CN + "sending activity hash = " + data.getIntExtra(PSF.S_ACTIVITY_HASH, 0));
 
-            String[] result = data.getStringArrayExtra(PSF.RSS_RESULT);
+            Parcelable[] infoEntityArray = data.getParcelableArrayExtra(PSF.RSS_ITEMS_ARRAY);
+            L.l(CN + "head title = " + data.getStringExtra(PSF.RSS_HEAD_TITLE));
+            L.l(CN + "head link = " + data.getStringExtra(PSF.RSS_HEAD_LINK));
+            L.l(CN + "head summary = " + data.getStringExtra(PSF.RSS_HEAD_SUMMARY));
+            L.l(CN + "tags parsed = " + data.getIntExtra(PSF.RSS_TAG_COUNTER, 0));
 
             TextView webView = (TextView) findViewById(R.id.wvTest);
-            webView.setText(result[19]);
+            if (infoEntityArray != null && infoEntityArray.length > 0)
+                webView.setText(infoEntityArray[0].toString());
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

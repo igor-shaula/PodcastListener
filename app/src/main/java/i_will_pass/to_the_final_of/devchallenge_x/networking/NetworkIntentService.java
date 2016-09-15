@@ -11,9 +11,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import i_will_pass.to_the_final_of.devchallenge_x.R;
+import i_will_pass.to_the_final_of.devchallenge_x.entity.InfoEntity;
 import i_will_pass.to_the_final_of.devchallenge_x.utils.L;
 import i_will_pass.to_the_final_of.devchallenge_x.utils.PSF;
 
@@ -22,10 +26,20 @@ import i_will_pass.to_the_final_of.devchallenge_x.utils.PSF;
  */
 public class NetworkIntentService extends IntentService {
 
-    public static final String CN = "NetworkIntentService ` ";
+    private static final String CN = "NetworkIntentService ` ";
 
     private static final String TAG_ITEM = "item"; // we're currently interested only in those tags \
     private static final String TAG_TITLE = "title"; // names are the only needed tags inside streams tags \
+    private static final String TAG_LINK = "link";
+    private static final String TAG_PUB_DATE = "pubDate";
+    private static final String TAG_MEDIA_CONTENT = "media:content";
+    private static final String ATTR_URL = "url";
+    private static final String ATTR_FILESIZE = "filesize";
+    private static final String ATTR_TYPE = "type";
+    private static final String TAG_SUMMARY = "itunes:summary";
+
+    private Map<String, String> headersMap;
+    private int tagCounter;
 
     // default constructor is required here by manifest \
     public NetworkIntentService() {
@@ -44,16 +58,24 @@ public class NetworkIntentService extends IntentService {
 
         // all network job is done here \
         String receivedString = new HttpUrlConnAgent().getStringFromWeb(requestedUrl);
-        L.l(CN + "receivedString = " + receivedString);
 
         // now the time of parsing begins \
-        String[] result = parseXml(receivedString);
+        InfoEntity[] infoEntities = parseXml(receivedString);
+
+//        L.l(CN + "parsed entities = " + infoEntities.length);
+        if (infoEntities != null)
+            for (InfoEntity infoEntity : infoEntities)
+                L.l(CN + infoEntity);
 
         // opening intent as envelope and getting our PendingIntent to send it back to its activity \
         PendingIntent pendingIntent = intent.getParcelableExtra(PSF.N_I_SERVICE);
         try {
             Intent newIntent = new Intent()
-                    .putExtra(PSF.RSS_RESULT, result)
+                    .putExtra(PSF.RSS_HEAD_TITLE, headersMap.get(TAG_TITLE))
+                    .putExtra(PSF.RSS_HEAD_LINK, headersMap.get(TAG_LINK))
+                    .putExtra(PSF.RSS_HEAD_SUMMARY, headersMap.get(TAG_SUMMARY))
+                    .putExtra(PSF.RSS_TAG_COUNTER, tagCounter)
+                    .putExtra(PSF.RSS_ITEMS_ARRAY, infoEntities)
                     .putExtra(PSF.S_ACTIVITY_HASH, activityHashCode);
             pendingIntent.send(this, PSF.P_I_SERVICE, newIntent);
         } catch (PendingIntent.CanceledException e) {
@@ -62,7 +84,10 @@ public class NetworkIntentService extends IntentService {
 //        stopSelf(); // no need to stop the service here - it stops itself by default - it's checked \
     }
 
-    private String[] parseXml(String stringToParse) {
+    // PARSING SECTION =============================================================================
+
+    // converts data in tags into main array of info-objects \
+    private InfoEntity[] parseXml(String stringToParse) {
 
         if (stringToParse == null) {
             L.a(CN + "stringToParse is null !!!");
@@ -70,32 +95,69 @@ public class NetworkIntentService extends IntentService {
         }
 
         InputStream inputStream = new ByteArrayInputStream(stringToParse.getBytes());
-
-        // preparing parser for usage \
+/*
+         i use XmlPullParser instead of SAX and others because Google recommends it,
+         and else i assume that document from RSS-feed cannot be so huge not to be able
+         to get loaded into RAM wholly \ and as well i like the way it works \
+*/
         XmlPullParser parser = Xml.newPullParser();
         try {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(inputStream, null);
             parser.nextTag();
 
-            // for adding multiple elements while it's not clear how many of them \
-            List<String> stringList = new LinkedList<>();
+            // for saving headers of current RSS-feed \
+            headersMap = new HashMap<>();
 
+            // for local adding multiple elements while it's not clear how many of them \
+            List<InfoEntity> infoEntityList = new LinkedList<>();
+
+            // separates parsing items from headers \
+            boolean parsingItem = false;
+
+            // main loop to scan every tag of received XML \
             while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
-                if (parser.getEventType() == XmlPullParser.START_TAG
-                        && parser.getName().equals(TAG_ITEM)) {
-                    parser.nextTag();
 
-                    if (parser.getName().equals(TAG_TITLE)) {
-                        String content = parser.nextText();
-
-                        stringList.add(content);
-                        L.l(CN + "TAG_TITLE: added to stringList = " + content);
+                // we're looking only for starting tags, skipping everything else \
+//                if (parser.getEventType() == XmlPullParser.END_TAG) {
+                if (parser.getEventType() != XmlPullParser.START_TAG) {
+                    // if not start tag - it may be end tag, and if it's TAG_ITEM -> restoring flag \
+//                    if (parser.getName().equals(TAG_ITEM))
+                    // as nextTag gives either START or END_TAG, it's obvious we have the second one \
+                    if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equals(TAG_ITEM)) {
+                        parsingItem = false; // in fact here this mode ends \
+                        L.l(CN + "parsingItem = " + parsingItem);
                     }
+                    // moving further to the next loop iteration with initial START_TAG check \
+//                    parser.nextTag();
+                    parser.next();
+                    continue;
                 }
+
+                tagCounter++;
+                L.l(CN + "STARTED PARSING TAG # " + tagCounter + " = " + parser.getName());
+
+                // here we previously left only inspection of starting tags \
+                if (parser.getName().equals(TAG_ITEM)) {
+                    // this flag has to switch on every encountered item tag \
+                    parsingItem = true;
+//                    L.l(CN + "parsingItem = " + parsingItem);
+                }
+                // i decided to additionally parse headers to get general info about this RSS-feed \
+                if (!parsingItem)
+                    parseHeaderTag(parser);
+                    // result of work is written to headersMap \
+                else {
+                    InfoEntity infoEntity = parseItemBlock(parser);
+                    if (infoEntity != null)
+                        infoEntityList.add(infoEntity);
+                }
+
+//                parser.nextTag();
                 parser.next();
-            }
-            String[] stringArray = new String[stringList.size()];
+            } // end of while-loop \\
+
+            InfoEntity[] infoEntityArray = new InfoEntity[infoEntityList.size()];
 /*
             // this way is obvious but inefficient because of long reading of LinkedList every time \
             for (int i = 0; i < stringList.size(); i++) {
@@ -104,12 +166,12 @@ public class NetworkIntentService extends IntentService {
 */
             // transporting elements from LinkedList to Array in one pass \
             int i = 0;
-            for (String stringItem : stringList) {
-                stringArray[i] = stringItem;
+            for (InfoEntity infoEntity : infoEntityList) {
+                infoEntityArray[i] = infoEntity;
                 i++;
             }
             // decided to return the array of strings to fit with intent.putExtra() method later \
-            return stringArray;
+            return infoEntityArray;
 
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
@@ -121,6 +183,112 @@ public class NetworkIntentService extends IntentService {
             }
         }
         // normally it is not supposed to get here and really return null \
+        L.a(CN + "parseXml() returns null");
         return null;
     } // end of parseXml-method \\
+
+    private void parseHeaderTag(XmlPullParser parser) throws XmlPullParserException, IOException {
+
+        // firstly getting headers general info - before items \
+        String headTitle;
+        String headLink;
+        String headSummary;
+
+        switch (parser.getName()) {
+            case TAG_TITLE:
+                headTitle = parser.nextText();
+                headersMap.put(TAG_TITLE, headTitle);
+                L.l(CN + "headTitle = " + headTitle);
+                break;
+            case TAG_LINK:
+                headLink = parser.nextText();
+                headersMap.put(TAG_LINK, headLink);
+                L.l(CN + "headLink = " + headLink);
+                break;
+            case TAG_SUMMARY:
+                headSummary = parser.nextText();
+                headersMap.put(TAG_SUMMARY, headSummary);
+                L.l(CN + "headSummary = " + headSummary);
+                break;
+            default:
+                L.e(CN + "unidentified tag during parsing head");
+                break;
+        }
+    }
+
+    // inner parsing loop inside outer parsing loop - for every item \
+    private InfoEntity parseItemBlock(XmlPullParser parser) throws XmlPullParserException, IOException {
+        // as we're starting from TAG_ITEM - we have to move to the net tag just now \
+        L.l(CN + "INNER ENTERING TAG = " + parser.getName());
+        parser.next();
+
+        // secondly parsing all items - we have to build objects from these variables \
+        String title = "";
+        String link = "";
+        String pubDate = "";
+        String mediaContentUrl = "";
+        long fileSize = 0;
+        String type = "";
+        String summary = "";
+
+        if (parser.getName() == null) return null;
+
+        // i guess we need inner loop here - to work directly inside item-tag \
+        while (!(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equals(TAG_ITEM))) {
+            L.l(CN + "INNER LOOPING TAG = " + parser.getName());
+
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                parser.next();
+                continue;
+            }
+
+            if (parser.getName().equals(TAG_ITEM)) break;
+
+            switch (parser.getName()) {
+                case TAG_TITLE:
+                    title = parser.nextText();
+                    break;
+                case TAG_LINK:
+                    link = parser.nextText();
+                    break;
+                case TAG_PUB_DATE:
+                    pubDate = parser.nextText();
+                    break;
+                case TAG_MEDIA_CONTENT:
+                    // using general approach for any sequence of attributes ordering \
+                    for (int i = 0; i < parser.getAttributeCount(); i++)
+                        switch (parser.getAttributeName(i)) {
+                            case ATTR_URL:
+                                mediaContentUrl = parser.getAttributeValue(i);
+                                break;
+                            case ATTR_FILESIZE:
+                                fileSize = Integer.decode(parser.getAttributeValue(i));
+                                break;
+                            case ATTR_TYPE:
+                                type = parser.getAttributeValue(i);
+                                break;
+                        } // end of inner switch for attributes \\
+                    break;
+                case TAG_SUMMARY:
+                    summary = parser.nextText();
+                    break;
+                default:
+                    L.e(CN + "unknown tag = " + parser.getName());
+                    // having to mimic the job of nextText-method of other cases \
+                    parser.next();
+                    break;
+            } // end of outer switch for tags \\
+
+            // moving to the next tag inside current item block \
+            parser.next();
+        } // end of while-loop \\
+
+        // special part for repeating charset in the end of every summary description on radio-t \
+        String repeatingChars = getString(R.string.repeatingChars);
+        if (summary.contains(repeatingChars))
+            // minus additional 2 chars - because of spaces not shown in resources string \
+            summary = summary.substring(0, summary.length() - repeatingChars.length() - 2);
+
+        return new InfoEntity(title, link, pubDate, mediaContentUrl, fileSize, type, summary);
+    } // end of parseItemBlock-method \\
 }

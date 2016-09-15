@@ -2,14 +2,18 @@ package i_will_pass.to_the_final_of.devchallenge_x.utils;
 
 /**
  * shared constants container \
- * <p/>
+ * <p>
  * PSF = Public Static Final \
  * all constants used in more than one class, are gathered here \
  */
 public class PSF {
 
     public static final String RSS_FEED_URL = "url of the current RSS-feed";
-    public static final String RSS_RESULT = "response from the network";
+    public static final String RSS_ITEMS_ARRAY = "response from the network";
+    public static final String RSS_HEAD_TITLE = "headTitle";
+    public static final String RSS_HEAD_LINK = "headLink";
+    public static final String RSS_HEAD_SUMMARY = "headSummary";
+    public static final String RSS_TAG_COUNTER = "tagCounter";
     public static final String N_I_SERVICE = "NetworkIntentService";
 
     public static final String S_ACTIVITY_HASH = "hashCode of current activity instance";

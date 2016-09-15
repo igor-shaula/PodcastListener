@@ -31,9 +31,13 @@ public class HttpUrlConnAgent {
 */
             URL url = new URL(stringUrl);
             urlConnection = (HttpURLConnection) url.openConnection();
-            InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-            receivedString = getStringFromInputStream(inputStream);
-            // i had to transfer InputStream to String because of closing this stream in finally \
+
+            if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+                receivedString = getStringFromInputStream(inputStream);
+                // i had to transfer InputStream to String because of closing this stream in finally \
+            } else L.e(CN + "response code = " + urlConnection.getResponseCode());
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
