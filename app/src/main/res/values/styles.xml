@@ -30,6 +30,10 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="MatchWrap.Gravity_Center.MaxLines1">
+        <item name="android:maxLines">1</item>
+    </style>
+
     <style name="MatchWrap.Gravity_Center.Informer">
         <item name="android:textColor">@android:color/holo_red_light</item>
         <item name="android:text">@string/testingText</item>
@@ -60,6 +64,15 @@
     <style name="WeightWidth">
         <item name="android:layout_weight">1</item>
         <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="WeightWidth.Informer">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/holo_red_light</item>
+        <item name="android:text">@string/testingText</item>
+        <!--<item name="android:gravity">center</item>-->
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_margin">@dimen/size_8</item>
     </style>
 
     <!-- others -->

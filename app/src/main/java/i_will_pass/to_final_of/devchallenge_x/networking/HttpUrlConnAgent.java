@@ -1,4 +1,4 @@
-package i_will_pass.to_the_final_of.devchallenge_x.networking;
+package i_will_pass.to_final_of.devchallenge_x.networking;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -7,8 +7,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 
-import i_will_pass.to_the_final_of.devchallenge_x.utils.L;
+import i_will_pass.to_final_of.devchallenge_x.utils.L;
 
 /**
  * gives ability to process network request without using libraries \
@@ -38,6 +39,9 @@ public class HttpUrlConnAgent {
                 // i had to transfer InputStream to String because of closing this stream in finally \
             } else L.e(CN + "response code = " + urlConnection.getResponseCode());
 
+        } catch (UnknownHostException e) {
+            // it seems that we have no internet here \
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -47,7 +51,7 @@ public class HttpUrlConnAgent {
         L.l(CN + "receivedString = " + receivedString);
         // we might send local broadcast here \
         return receivedString;
-    }
+    } // end of getStringFromWeb-method \\
 
     // converting InputStream to String - utility for getStringFromWeb(...) \
     private String getStringFromInputStream(InputStream inputStream) {

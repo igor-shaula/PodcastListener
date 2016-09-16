@@ -1,8 +1,8 @@
-package i_will_pass.to_the_final_of.devchallenge_x;
+package i_will_pass.to_final_of.devchallenge_x;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.

@@ -2,8 +2,6 @@
 
     <string name="app_name">DevChallenge_X</string>
 
-    <string name="defaultPodcastUrl">http://cdn.radio-t.com/rt_podcast512.mp3</string>
-    <string name="nnnPodcastUrl">http://cdn.radio-t.com/rt_podcastNNN.mp3</string>
     <string name="testingText">text for test</string>
 
     <string name="inetConnected">Internet connected</string>
@@ -11,14 +9,20 @@
     <string name="wifiIsAvailable">WiFi is available</string>
     <string name="wifiIsUnavailable">WiFi is unavailable</string>
 
-    <string name="repeatingChars">Темы наших слушателей Спонсор этого выпуска DigitalOcean аудио ● лог чата</string>
+    <string name="repeatingChars1">Темы наших слушателей</string>
+    <string name="repeatingChars2">Спонсор этого выпуска</string>
 
-    <string name="defaultTitle">no title</string>
-    <string name="defaultLink">no link</string>
-    <string name="defaultPubDate">unknown publication date</string>
-    <string name="defaultMediaContentUrl">no media for download</string>
+    <string name="initialTitle">Radio-T</string>
+    <string name="initialSummary">Trying to get new data…</string>
+    <string name="defaultRssFeedUrl">feeds.rucast.net/Radio-t</string>
+    <string name="noTitle">no title</string>
+    <string name="noLink">no link</string>
+    <string name="noPubDate">unknown publication date</string>
+    <string name="noMediaContentUrl">no media for download</string>
+    <string name="noType">unknown type</string>
+    <string name="noSummary">no summary info</string>
     <!-- long defaultFileSize = 0 - i decided to keep this data not in String -->
-    <string name="defaultType">unknown type</string>
-    <string name="defaultSummary">no summary info</string>
+    <string name="failedTitle">Failed getting new data</string>
+    <string name="failedSummary">Check your Internet settings, please</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package i_will_pass.to_the_final_of.devchallenge_x.utils;
+package i_will_pass.to_final_of.devchallenge_x.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package i_will_pass.to_the_final_of.devchallenge_x.entity;
+package i_will_pass.to_final_of.devchallenge_x.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;

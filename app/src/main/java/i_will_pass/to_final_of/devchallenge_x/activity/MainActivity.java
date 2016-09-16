@@ -1,4 +1,4 @@
-package i_will_pass.to_the_final_of.devchallenge_x.activity;
+package i_will_pass.to_final_of.devchallenge_x.activity;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -8,27 +8,32 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
-import i_will_pass.to_the_final_of.devchallenge_x.R;
-import i_will_pass.to_the_final_of.devchallenge_x.networking.NetworkIntentService;
-import i_will_pass.to_the_final_of.devchallenge_x.receiver.NetworkStateReceiver;
-import i_will_pass.to_the_final_of.devchallenge_x.utils.L;
-import i_will_pass.to_the_final_of.devchallenge_x.utils.PSF;
-import i_will_pass.to_the_final_of.devchallenge_x.utils.PSUtils;
+import i_will_pass.to_final_of.devchallenge_x.R;
+import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
+import i_will_pass.to_final_of.devchallenge_x.networking.NetworkIntentService;
+import i_will_pass.to_final_of.devchallenge_x.receiver.NetworkStateReceiver;
+import i_will_pass.to_final_of.devchallenge_x.rv_adapter.RVAdapter;
+import i_will_pass.to_final_of.devchallenge_x.utils.L;
+import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
+import i_will_pass.to_final_of.devchallenge_x.utils.PSUtils;
 
 public class MainActivity extends AppCompatActivity implements NetworkStateReceiver.ConnectionStateCallback {
 
     // for my style of logging \
     private static final String CN = "MainActivity ` ";
-
-    //    private static final String DEFAULT_RSS_FEED_URL = "https://api.instagram.com/v1/users/self/media/recent/?access_token=1";
-    private static final String DEFAULT_RSS_FEED_URL = "http://feeds.rucast.net/Radio-t";
+    private static final String HTTP = "http://";
+    private static final String WWW = "www.";
 
     // to register / unregister receiver in this activity \
     private NetworkStateReceiver networkStateReceiver = new NetworkStateReceiver();
 
     private String rssFeedUrl;
+
+    private TextView tvHeadLink;
 
     // ALL CALLBACKS ===============================================================================
 
@@ -37,7 +42,9 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        rssFeedUrl = DEFAULT_RSS_FEED_URL;
+        tvHeadLink = (TextView) findViewById(R.id.tvHeadLink);
+
+        rssFeedUrl = HTTP + getString(R.string.defaultRssFeedUrl);
     }
 
     /*
@@ -81,9 +88,12 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
             // launching request to selected RSS-feed to get all data for the list of podcasts \
             askRssFeed(rssFeedUrl);
 
+            tvHeadLink.setTextColor(Color.GREEN);
         } else {
             tvInetStatus.setText(getString(R.string.inetDisconnected));
             tvInetStatus.setTextColor(Color.RED);
+
+            tvHeadLink.setTextColor(Color.RED);
         }
     }
 
@@ -110,15 +120,8 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
             L.l(CN + "current activity hash = " + hashCode());
             L.l(CN + "sending activity hash = " + data.getIntExtra(PSF.S_ACTIVITY_HASH, 0));
 
-            Parcelable[] infoEntityArray = data.getParcelableArrayExtra(PSF.RSS_ITEMS_ARRAY);
-            L.l(CN + "head title = " + data.getStringExtra(PSF.RSS_HEAD_TITLE));
-            L.l(CN + "head link = " + data.getStringExtra(PSF.RSS_HEAD_LINK));
-            L.l(CN + "head summary = " + data.getStringExtra(PSF.RSS_HEAD_SUMMARY));
-            L.l(CN + "tags parsed = " + data.getIntExtra(PSF.RSS_TAG_COUNTER, 0));
-
-            TextView webView = (TextView) findViewById(R.id.wvTest);
-            if (infoEntityArray != null && infoEntityArray.length > 0)
-                webView.setText(infoEntityArray[0].toString());
+            showParsedHeaders(data);
+            showParsedItems(data);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -143,5 +146,45 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
                     .putExtra(PSF.S_ACTIVITY_HASH, hashCode());
             startService(intent);
         }
+    }
+
+    private void showParsedHeaders(Intent data) {
+
+        String headTitle = data.getStringExtra(PSF.RSS_HEAD_TITLE);
+        String headLink = data.getStringExtra(PSF.RSS_HEAD_LINK);
+        String headSummary = data.getStringExtra(PSF.RSS_HEAD_SUMMARY);
+        L.l(CN + "head title = " + headTitle);
+        L.l(CN + "head link = " + headLink);
+        L.l(CN + "head summary = " + headSummary);
+
+        TextView tvHeadTitle = (TextView) findViewById(R.id.tvHeadTitle);
+        TextView tvHeadSummary = (TextView) findViewById(R.id.tvHeadSummary);
+
+        // i decided to hide all specific symbols in URL from user here \
+        String reducedHeadLink = headLink.replaceFirst(HTTP + WWW, "");
+        int reducedLength = reducedHeadLink.length();
+        if (reducedHeadLink.charAt(reducedLength - 1) == '/') {
+            reducedHeadLink = reducedHeadLink.substring(0, reducedLength - 1);
+        }
+
+        tvHeadTitle.setText(headTitle);
+        tvHeadLink.setText(reducedHeadLink);
+        tvHeadSummary.setText(headSummary);
+    }
+
+    private void showParsedItems(Intent data) {
+
+        RecyclerView rvPodCasts = (RecyclerView) findViewById(R.id.rvPodCasts);
+
+        rvPodCasts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        Parcelable[] parcelableArray = data.getParcelableArrayExtra(PSF.RSS_ITEMS_ARRAY);
+        // doing trick as we need the array of InfoEntity and we cannot simply cast this to needed array \
+        int arraySize = parcelableArray.length;
+        InfoEntity[] infoEntityArray = new InfoEntity[arraySize];
+        for (int i = 0; i < arraySize; i++)
+            infoEntityArray[i] = (InfoEntity) parcelableArray[i];
+
+        rvPodCasts.setAdapter(new RVAdapter(MainActivity.this, infoEntityArray));
     }
 }

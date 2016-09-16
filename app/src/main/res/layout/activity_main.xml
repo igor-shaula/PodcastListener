@@ -3,22 +3,69 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/MatchMatch"
-    android:padding="@dimen/size_16"
+    android:paddingTop="@dimen/size_8"
     tools:context=".activity.MainActivity">
 
     <TextView
-        android:id="@+id/wvTest"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:id="@+id/tvHeadTitle"
+        style="@style/MatchWrap.Gravity_Center.MaxLines1"
+        android:text="@string/initialTitle"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:textColor="@android:color/white" />
 
     <TextView
-        android:id="@+id/tvInetStatus"
-        style="@style/MatchWrap.Gravity_Center.Informer"
-        android:layout_above="@+id/tvWiFiStatus" />
+        android:id="@+id/tvHeadLink"
+        style="@style/MatchWrap.Gravity_Center.MaxLines1"
+        android:layout_below="@id/tvHeadTitle"
+        android:text="@string/defaultRssFeedUrl" />
 
-    <TextView
-        android:id="@+id/tvWiFiStatus"
-        style="@style/MatchWrap.Gravity_Center.Informer"
-        android:layout_alignParentBottom="true" />
+    <!-- because android:scrollHorizontally="true" doesn't work -->
+    <HorizontalScrollView
+        android:id="@+id/hsvSummary"
+        style="@style/MatchWrap"
+        android:layout_below="@id/tvHeadLink"
+        android:fillViewport="true"
+        android:padding="@dimen/size_6"
+        android:scrollbars="none">
+
+        <TextView
+            android:id="@+id/tvHeadSummary"
+            style="@style/MatchWrap.Gravity_Center.MaxLines1"
+            android:text="@string/initialSummary"
+            android:textAppearance="@android:style/TextAppearance.Medium" />
+
+    </HorizontalScrollView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvPodCasts"
+        style="@style/MatchMatch"
+        android:layout_above="@+id/llBottomStatus"
+        android:layout_below="@id/hsvSummary"
+        android:layout_marginTop="@dimen/size_2"
+        android:padding="@dimen/size_4" />
+
+    <!-- it's better to write important default values here -->
+    <LinearLayout
+        android:id="@+id/llBottomStatus"
+        style="@style/MatchWrap.Gravity_Center"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvInetStatus"
+            style="@style/WeightWidth.Informer"
+            android:gravity="end" />
+
+        <View
+            android:layout_width="@dimen/size_1"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/tvWiFiStatus"
+            style="@style/WeightWidth.Informer"
+            android:gravity="start" />
+
+    </LinearLayout>
 
 </RelativeLayout>

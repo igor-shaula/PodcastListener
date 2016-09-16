@@ -1,4 +1,4 @@
-package i_will_pass.to_the_final_of.devchallenge_x.networking;
+package i_will_pass.to_final_of.devchallenge_x.networking;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -16,10 +16,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import i_will_pass.to_the_final_of.devchallenge_x.R;
-import i_will_pass.to_the_final_of.devchallenge_x.entity.InfoEntity;
-import i_will_pass.to_the_final_of.devchallenge_x.utils.L;
-import i_will_pass.to_the_final_of.devchallenge_x.utils.PSF;
+import i_will_pass.to_final_of.devchallenge_x.R;
+import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
+import i_will_pass.to_final_of.devchallenge_x.utils.L;
+import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
 
 /**
  * asks RSS-feed for data and parses it - all job is done in a worker thread \
@@ -38,8 +38,10 @@ public class NetworkIntentService extends IntentService {
     private static final String ATTR_TYPE = "type";
     private static final String TAG_SUMMARY = "itunes:summary";
 
-    private Map<String, String> headersMap;
-    private int tagCounter;
+    // for saving headers of current RSS-feed \
+    private Map<String, String> headersMap = new HashMap<>();
+
+//    private int tagCounter;
 
     // default constructor is required here by manifest \
     public NetworkIntentService() {
@@ -59,22 +61,38 @@ public class NetworkIntentService extends IntentService {
         // all network job is done here \
         String receivedString = new HttpUrlConnAgent().getStringFromWeb(requestedUrl);
 
-        // now the time of parsing begins \
-        InfoEntity[] infoEntities = parseXml(receivedString);
+        String headTitle;
+        String headLink;
+        String headSummary;
 
-//        L.l(CN + "parsed entities = " + infoEntities.length);
-        if (infoEntities != null)
-            for (InfoEntity infoEntity : infoEntities)
-                L.l(CN + infoEntity);
+        InfoEntity[] infoEntities = new InfoEntity[0];
+        if (receivedString == null) {
+            // show user that this URL is wrong or perhaps internet is OFF \
+            headTitle = getString(R.string.failedTitle);
+            headLink = requestedUrl;
+            headSummary = getString(R.string.failedSummary);
+        } else {
+            // now the time of parsing begins - headersMap is filled-up here \
+            infoEntities = parseXml(receivedString);
 
+            // in purpose of logging only \
+            if (infoEntities != null)
+//            L.l(CN + "parsed entities = " + infoEntities.length);
+                for (InfoEntity infoEntity : infoEntities)
+                    L.l(CN + infoEntity);
+
+            headTitle = headersMap.get(TAG_TITLE);
+            headLink = headersMap.get(TAG_LINK);
+            headSummary = headersMap.get(TAG_SUMMARY);
+        }
         // opening intent as envelope and getting our PendingIntent to send it back to its activity \
         PendingIntent pendingIntent = intent.getParcelableExtra(PSF.N_I_SERVICE);
         try {
             Intent newIntent = new Intent()
-                    .putExtra(PSF.RSS_HEAD_TITLE, headersMap.get(TAG_TITLE))
-                    .putExtra(PSF.RSS_HEAD_LINK, headersMap.get(TAG_LINK))
-                    .putExtra(PSF.RSS_HEAD_SUMMARY, headersMap.get(TAG_SUMMARY))
-                    .putExtra(PSF.RSS_TAG_COUNTER, tagCounter)
+                    .putExtra(PSF.RSS_HEAD_TITLE, headTitle)
+                    .putExtra(PSF.RSS_HEAD_LINK, headLink)
+                    .putExtra(PSF.RSS_HEAD_SUMMARY, headSummary)
+//                    .putExtra(PSF.RSS_TAG_COUNTER, tagCounter)
                     .putExtra(PSF.RSS_ITEMS_ARRAY, infoEntities)
                     .putExtra(PSF.S_ACTIVITY_HASH, activityHashCode);
             pendingIntent.send(this, PSF.P_I_SERVICE, newIntent);
@@ -82,18 +100,19 @@ public class NetworkIntentService extends IntentService {
             e.printStackTrace();
         }
 //        stopSelf(); // no need to stop the service here - it stops itself by default - it's checked \
-    }
+    } // end of onHandleIntent-method \\
 
     // PARSING SECTION =============================================================================
 
     // converts data in tags into main array of info-objects \
     private InfoEntity[] parseXml(String stringToParse) {
-
+        // null-check is done before this method invocation - on the upper logic level \
+/*
         if (stringToParse == null) {
             L.a(CN + "stringToParse is null !!!");
             return null;
         }
-
+*/
         InputStream inputStream = new ByteArrayInputStream(stringToParse.getBytes());
 /*
          i use XmlPullParser instead of SAX and others because Google recommends it,
@@ -105,9 +124,6 @@ public class NetworkIntentService extends IntentService {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(inputStream, null);
             parser.nextTag();
-
-            // for saving headers of current RSS-feed \
-            headersMap = new HashMap<>();
 
             // for local adding multiple elements while it's not clear how many of them \
             List<InfoEntity> infoEntityList = new LinkedList<>();
@@ -128,10 +144,10 @@ public class NetworkIntentService extends IntentService {
                     parser.next();
                     continue;
                 }
-
+/*
                 tagCounter++;
                 L.l(CN + "OUTER LOOPING TAG # " + tagCounter + " = " + parser.getName());
-
+*/
                 // here we previously left only inspection of starting tags \
                 if (parser.getName().equals(TAG_ITEM))
                     parsingItem = true;
@@ -216,13 +232,13 @@ public class NetworkIntentService extends IntentService {
         parser.next();
 
         // secondly parsing all items - we have to build objects from these variables \
-        String title = getString(R.string.defaultTitle);
-        String link = getString(R.string.defaultLink);
-        String pubDate = getString(R.string.defaultPubDate);
-        String mediaContentUrl = getString(R.string.defaultMediaContentUrl);
+        String title = getString(R.string.noTitle);
+        String link = getString(R.string.noLink);
+        String pubDate = getString(R.string.noPubDate);
+        String mediaContentUrl = getString(R.string.noMediaContentUrl);
         long fileSize = 0;
-        String type = getString(R.string.defaultType);
-        String summary = getString(R.string.defaultSummary);
+        String type = getString(R.string.noType);
+        String summary = getString(R.string.noSummary);
 
         // for escaping endless loop while not changing obvious logic \
         if (parser.getName() == null)
@@ -279,10 +295,31 @@ public class NetworkIntentService extends IntentService {
         } // end of while-loop \\
 
         // special part for repeating charset in the end of every summary description on radio-t \
-        String repeatingChars = getString(R.string.repeatingChars);
-        if (summary.contains(repeatingChars))
-            // minus additional 2 chars - because of spaces not shown in resources string \
-            summary = summary.substring(0, summary.length() - repeatingChars.length() - 2);
+        String repeatingChars1 = getString(R.string.repeatingChars1);
+        String repeatingChars2 = getString(R.string.repeatingChars2);
+/*
+        // this way seems to be simple, but here we parse String with 3 or 4 passes \
+        int repeatingCharsBegin = summary.length();
+        if (summary.contains(repeatingChars1)) {
+            repeatingCharsBegin = summary.indexOf(repeatingChars1);
+        } else if (summary.contains(repeatingChars1))
+            repeatingCharsBegin = summary.indexOf(repeatingChars2);
+        summary = summary.substring(0, repeatingCharsBegin).trim();
+*/
+        int uniquePartEnd = summary.length();
+        int repeatingChars1Begin = summary.indexOf(repeatingChars1); // first String parsing
+        int repeatingChars2Begin;
+        // this algorithm may look over-complicated, but it's as optimal and fast as possible \
+        if (repeatingChars1Begin > 0) {
+            uniquePartEnd = repeatingChars1Begin;
+        } else {
+            // placed here to avoid excess parsing String \
+            repeatingChars2Begin = summary.indexOf(repeatingChars2); // second String parsing
+            if (repeatingChars2Begin > 0) {
+                uniquePartEnd = repeatingChars2Begin;
+            }
+        }
+        summary = summary.substring(0, uniquePartEnd).trim();
 
         return new InfoEntity(title, link, pubDate, mediaContentUrl, fileSize, type, summary);
     } // end of parseItemBlock-method \\

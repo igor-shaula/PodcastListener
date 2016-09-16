@@ -2,7 +2,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="i_will_pass.to_the_final_of.devchallenge_x">
+    package="i_will_pass.to_final_of.devchallenge_x">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name="i_will_pass.to_final_of.devchallenge_x.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +28,7 @@
         <!--this receiver is registered/unregistered dynamically & locally in activity -->
 
         <service
-            android:name=".networking.NetworkIntentService"
+            android:name="i_will_pass.to_final_of.devchallenge_x.networking.NetworkIntentService"
             android:exported="false" />
 
     </application>
