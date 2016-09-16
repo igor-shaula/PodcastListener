@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.networking;
+package i_will_pass.to_final_of.devchallenge_x.services;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -18,15 +18,16 @@ import java.util.Map;
 
 import i_will_pass.to_final_of.devchallenge_x.R;
 import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
+import i_will_pass.to_final_of.devchallenge_x.networking.HttpUrlConnAgent;
 import i_will_pass.to_final_of.devchallenge_x.utils.L;
 import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
 
 /**
  * asks RSS-feed for data and parses it - all job is done in a worker thread \
  */
-public class NetworkIntentService extends IntentService {
+public class StartingIntentService extends IntentService {
 
-    private static final String CN = "NetworkIntentService ` ";
+    private static final String CN = "StartingIntentService ` ";
 
     private static final String TAG_ITEM = "item"; // we're currently interested only in those tags \
     private static final String TAG_TITLE = "title"; // names are the only needed tags inside streams tags \
@@ -44,7 +45,7 @@ public class NetworkIntentService extends IntentService {
 //    private int tagCounter;
 
     // default constructor is required here by manifest \
-    public NetworkIntentService() {
+    public StartingIntentService() {
         // giving name to our worker thread - it's important only for debugging \
         super(CN.replace(' ', '`'));
         // i decided not to place chars to constants - just trying to keep simplicity \

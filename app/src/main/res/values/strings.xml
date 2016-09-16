@@ -24,5 +24,6 @@
     <!-- long defaultFileSize = 0 - i decided to keep this data not in String -->
     <string name="failedTitle">Failed getting new data</string>
     <string name="failedSummary">Check your Internet settings, please</string>
+    <string name="image_for_current_podcast">image for current podcast</string>
 
 </resources>

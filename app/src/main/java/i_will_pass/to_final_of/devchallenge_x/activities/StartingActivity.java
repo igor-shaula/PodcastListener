@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.activity;
+package i_will_pass.to_final_of.devchallenge_x.activities;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -14,17 +14,18 @@ import android.widget.TextView;
 
 import i_will_pass.to_final_of.devchallenge_x.R;
 import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
-import i_will_pass.to_final_of.devchallenge_x.networking.NetworkIntentService;
 import i_will_pass.to_final_of.devchallenge_x.receiver.NetworkStateReceiver;
 import i_will_pass.to_final_of.devchallenge_x.rv_adapter.RVAdapter;
+import i_will_pass.to_final_of.devchallenge_x.rv_listener.RVOnItemTouchListener;
+import i_will_pass.to_final_of.devchallenge_x.services.StartingIntentService;
 import i_will_pass.to_final_of.devchallenge_x.utils.L;
 import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
 import i_will_pass.to_final_of.devchallenge_x.utils.PSUtils;
 
-public class MainActivity extends AppCompatActivity implements NetworkStateReceiver.ConnectionStateCallback {
+public class StartingActivity extends AppCompatActivity implements NetworkStateReceiver.ConnectionStateCallback {
 
     // for my style of logging \
-    private static final String CN = "MainActivity ` ";
+    private static final String CN = "StartingActivity ` ";
     private static final String HTTP = "http://";
     private static final String WWW = "www.";
 
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_starting);
 
         tvHeadLink = (TextView) findViewById(R.id.tvHeadLink);
 
@@ -130,9 +131,9 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
 
     private void askRssFeed(String sUrl) {
 
-        if (PSUtils.isMyServiceRunning(this, NetworkIntentService.class))
+        if (PSUtils.isMyServiceRunning(this, StartingIntentService.class))
             // doing nothing to prevent many similar parallel network requests \
-            L.l(CN + "instance of NetworkIntentService is already working");
+            L.l(CN + "instance of StartingIntentService is already working");
         else {
             PendingIntent pendingIntent = createPendingResult(PSF.R_CODE_SERVICE, new Intent(), 0);
 /*
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
                         PSF.R_CODE_SERVICE, new Intent(), 0);
 */
-            Intent intent = new Intent(this, NetworkIntentService.class)
+            Intent intent = new Intent(this, StartingIntentService.class)
                     .putExtra(PSF.N_I_SERVICE, pendingIntent)
                     .putExtra(PSF.RSS_FEED_URL, sUrl)
                     .putExtra(PSF.S_ACTIVITY_HASH, hashCode());
@@ -181,10 +182,31 @@ public class MainActivity extends AppCompatActivity implements NetworkStateRecei
         Parcelable[] parcelableArray = data.getParcelableArrayExtra(PSF.RSS_ITEMS_ARRAY);
         // doing trick as we need the array of InfoEntity and we cannot simply cast this to needed array \
         int arraySize = parcelableArray.length;
-        InfoEntity[] infoEntityArray = new InfoEntity[arraySize];
+        final InfoEntity[] infoEntityArray = new InfoEntity[arraySize];
         for (int i = 0; i < arraySize; i++)
             infoEntityArray[i] = (InfoEntity) parcelableArray[i];
 
-        rvPodCasts.setAdapter(new RVAdapter(MainActivity.this, infoEntityArray));
+        rvPodCasts.setAdapter(new RVAdapter(this, infoEntityArray));
+
+        rvPodCasts.addOnItemTouchListener(new RVOnItemTouchListener(this) {
+            @Override
+            public void onListItemTouch(int whichIndex) {
+                launchDetailsActivityFor(infoEntityArray[whichIndex]);
+            }
+        });
+    }
+
+    private void launchDetailsActivityFor(InfoEntity infoEntity) {
+
+        Intent intent = new Intent(this, DetailActivity.class)
+                .putExtra(PSF.IE_TITLE, infoEntity.getTitle())
+                .putExtra(PSF.IE_LINK, infoEntity.getLink())
+                .putExtra(PSF.IE_PUB_DATE, infoEntity.getPubDate())
+                .putExtra(PSF.IE_MEDIA_CONTENT_URL, infoEntity.getMediaContentUrl())
+                .putExtra(PSF.IE_FILE_SIZE, infoEntity.getFileSize())
+                .putExtra(PSF.IE_TYPE, infoEntity.getType())
+                .putExtra(PSF.IE_SUMMARY, infoEntity.getSummary());
+        // here we're going to the next level activity \
+        startActivity(intent);
     }
 }

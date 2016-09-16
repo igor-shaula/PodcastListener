@@ -17,12 +17,12 @@ import i_will_pass.to_final_of.devchallenge_x.utils.L;
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
     private static final String CN = "RVAdapter ` ";
-    public static final String PDT = "PDT";
+    private static final String PDT = "PDT";
 
     private InfoEntity[] infoEntityArray;
 
     // created only once in constructor and kept over every onCreateViewHolder call \
-    private LayoutInflater mLayoutInflater;
+    private LayoutInflater layoutInflater;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -43,7 +43,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
         this.infoEntityArray = infoEntityArray;
         // as retrieving LayoutInflater is hardy job - it has to be done only once and better here \
-        mLayoutInflater = LayoutInflater.from(context);
+        layoutInflater = LayoutInflater.from(context);
         // just for keeping link to context only inside constructor - but not globally \
     }
 
@@ -56,7 +56,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         L.l(CN + "onCreateViewHolder");
 
-        return new ViewHolder(mLayoutInflater.inflate(R.layout.item_for_recycler, parent, false));
+        return new ViewHolder(layoutInflater.inflate(R.layout.item_for_recycler, parent, false));
     }
 
     @Override

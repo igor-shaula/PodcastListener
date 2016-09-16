@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/MatchMatch"
     android:paddingTop="@dimen/size_8"
-    tools:context=".activity.MainActivity">
+    tools:context=".activities.StartingActivity">
 
     <TextView
         android:id="@+id/tvHeadTitle"
