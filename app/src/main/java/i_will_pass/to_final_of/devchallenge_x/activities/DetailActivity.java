@@ -2,15 +2,20 @@ package i_will_pass.to_final_of.devchallenge_x.activities;
 
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import java.io.IOException;
 
 import i_will_pass.to_final_of.devchallenge_x.R;
 import i_will_pass.to_final_of.devchallenge_x.utils.L;
@@ -22,15 +27,23 @@ import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
 public class DetailActivity extends AppCompatActivity {
 
     private static final String CN = "DetailActivity ` ";
-    public static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
-    public static final String MAIN_IMAGE_URL_END = ".jpg";
+    private static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
+    private static final String MAIN_IMAGE_URL_END = ".jpg";
+
+    private String mediaContentUrl;
+
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // all starting findViewById & getIntent & Glide's job & setText are placed in this method \
-        setViewsForEmptyData();
+        setInitialViews();
+
+        MediaController mediaController = new MediaController(this, false);
+        mediaController.setAnchorView(findViewById(R.id.mcPlay));
+
     }
 
 /*
@@ -48,14 +61,11 @@ public class DetailActivity extends AppCompatActivity {
                 L.l(CN + "instance of StartingIntentService is already working");
             else {
                 PendingIntent pendingIntent = createPendingResult(PSF.R_CODE_SERVICE, new Intent(), 0);
-*/
-/*
+*//*
                 // i also tried this way - but it doesn't work \
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
                         PSF.R_CODE_SERVICE, new Intent(), 0);
 *//*
-
-
                 Intent intent = new Intent(this, StartingIntentService.class)
                         .putExtra(PSF.N_I_SERVICE, pendingIntent)
                         .putExtra(PSF.S_POST_URL, BASE_MEDIA_URL + mediaId + COMMENTS_PART + PSF.ACCESS_TOKEN)
@@ -66,6 +76,25 @@ public class DetailActivity extends AppCompatActivity {
             setViewsForReadyData();
     } // end of onStart-method \\
 */
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // we need explicit link for onStop and other possible controlling methods \
+        mediaPlayer = new MediaPlayer();
+        prepareMediaPlayer(mediaPlayer);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // stopping and releasing all media resources here \
+        if (mediaPlayer.isPlaying())
+            mediaPlayer.stop();
+        mediaPlayer.release();
+        // explicitly telling GC to clean this heavy container with already useless data \
+        mediaPlayer = null;
+    }
 
     // MAIN ACTIONS ================================================================================
 
@@ -83,7 +112,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     // invoked only at the very start of this activity - just to clean onCreate from the mess \
-    private void setViewsForEmptyData() {
+    private void setInitialViews() {
 
         setContentView(R.layout.activity_detail);
 
@@ -98,6 +127,7 @@ public class DetailActivity extends AppCompatActivity {
         String link = getIntent().getStringExtra(PSF.IE_LINK);
         String pubDate = getIntent().getStringExtra(PSF.IE_PUB_DATE);
         String summary = getIntent().getStringExtra(PSF.IE_SUMMARY);
+        mediaContentUrl = getIntent().getStringExtra(PSF.IE_MEDIA_CONTENT_URL);
 /*
         as i see for now - all podcast pictures in radio-t.com are small squares 200 x 200 px \
         so i decided to place this picture into container in the top of the screen \
@@ -131,5 +161,45 @@ public class DetailActivity extends AppCompatActivity {
         tvLink.setText(link);
         tvPubDate.setText(pubDate);
         tvSummary.setText(summary);
-    } // end of setViewsForEmptyData-method \\
+    } // end of setInitialViews-method \\
+
+    private void prepareMediaPlayer(MediaPlayer mediaPlayer) {
+
+        mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mediaPlayer, int i, int i1) {
+                L.l(CN + "onInfo: i = " + i + " , i1 = " + i1);
+                return false;
+            }
+        });
+
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                L.e(CN + "onError: i = " + i + " , i1 = " + i1);
+                return false;
+            }
+        });
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                L.e(CN + "after onPrepared: " + System.currentTimeMillis());
+                mediaPlayer.start();
+            }
+        });
+
+        try {
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setDataSource(mediaContentUrl);
+
+            // i'd like to measure time of preparing stream \
+            L.e(CN + "before onPrepared: " + System.currentTimeMillis());
+            mediaPlayer.prepareAsync();
+            // when this step is done - onPrepared will be called \
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    } // end of prepareMediaPlayer-method \\
 }

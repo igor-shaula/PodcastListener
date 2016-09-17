@@ -38,11 +38,20 @@
         android:layout_below="@id/tvLink"
         android:text="@string/noPubDate" />
 
-    <MediaController
+    <!--
+        <MediaController
+            android:id="@+id/mcPlay"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_64"
+            android:layout_below="@+id/tvPubDate" />
+    -->
+
+    <View
         android:id="@+id/mcPlay"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/size_16"
-        android:layout_below="@+id/tvPubDate" />
+        android:layout_height="@dimen/size_64"
+        android:layout_below="@+id/tvPubDate"
+        android:background="@color/primary" />
 
     <FrameLayout
         style="@style/MatchMatch"
