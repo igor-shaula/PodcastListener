@@ -23,7 +23,7 @@ import i_will_pass.to_final_of.devchallenge_x.utils.L;
 import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
 
 /**
- * asks RSS-feed for data and parses it - all job is done in a worker thread \
+ * asks RSS-feed for data and parses what was received - all job is done in a worker thread \
  */
 public class StartingIntentService extends IntentService {
 
@@ -62,11 +62,12 @@ public class StartingIntentService extends IntentService {
         // all network job is done here \
         String receivedString = new HttpUrlConnAgent().getStringFromWeb(requestedUrl);
 
-        String headTitle;
-        String headLink;
-        String headSummary;
+        String headTitle = null;
+        String headLink = null;
+        String headSummary = null;
 
         InfoEntity[] infoEntities = new InfoEntity[0];
+
         if (receivedString == null) {
             // show user that this URL is wrong or perhaps internet is OFF \
             headTitle = getString(R.string.failedTitle);
@@ -82,9 +83,11 @@ public class StartingIntentService extends IntentService {
                 for (InfoEntity infoEntity : infoEntities)
                     L.l(CN + infoEntity);
 
-            headTitle = headersMap.get(TAG_TITLE);
-            headLink = headersMap.get(TAG_LINK);
-            headSummary = headersMap.get(TAG_SUMMARY);
+            if (!headersMap.isEmpty()) {
+                headTitle = headersMap.get(TAG_TITLE);
+                headLink = headersMap.get(TAG_LINK);
+                headSummary = headersMap.get(TAG_SUMMARY);
+            }
         }
         // opening intent as envelope and getting our PendingIntent to send it back to its activity \
         PendingIntent pendingIntent = intent.getParcelableExtra(PSF.N_I_SERVICE);

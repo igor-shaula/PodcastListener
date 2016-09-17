@@ -27,4 +27,7 @@
     <dimen name="squareIconSize">48dp</dimen>
     <dimen name="squareIconSmallSize">18dp</dimen>
 
+    <!-- on site the dimensions of podcast picture are 200 x 200 px -->
+    <dimen name="defaultPictureSize">200px</dimen>
+
 </resources>

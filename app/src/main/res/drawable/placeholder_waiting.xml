@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <size
+        android:width="@dimen/defaultPictureSize"
+        android:height="@dimen/defaultPictureSize" />
+
+    <stroke
+        android:width="@dimen/size_2"
+        android:color="@color/primary_light" />
+
+</shape>

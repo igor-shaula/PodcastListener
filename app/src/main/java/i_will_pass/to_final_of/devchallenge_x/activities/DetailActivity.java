@@ -1,15 +1,12 @@
 package i_will_pass.to_final_of.devchallenge_x.activities;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,33 +22,15 @@ import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
 public class DetailActivity extends AppCompatActivity {
 
     private static final String CN = "DetailActivity ` ";
-
-    private RecyclerView rvComments;
-
-/*
-    // container for save-restore this activity data during screen orientation changes \
-    private ArrayList<UserComment> userComments;
-*/
-
-    // defining handler in main thread - so messages will come here \
-    private Handler handler = new Handler();
-
-    // OVERRIDDEN CALLBACKS ========================================================================
+    public static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
+    public static final String MAIN_IMAGE_URL_END = ".jpg";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // all starting findViewById & getIntent & setText are placed in this method \
+        // all starting findViewById & getIntent & Glide's job & setText are placed in this method \
         setViewsForEmptyData();
-
-        // trying to recreate data without asking network for what has already been delivered \
-        if (savedInstanceState != null) {
-            L.l(CN + "savedInstanceState is not null - trying to restore data without internet");
-            // we need to get data for a new instance of this activity that was recreated \
-//            userComments = savedInstanceState.getParcelableArrayList(USER_COMMENT_LIST);
-        }
-//        L.l(CN + "created activity hash = " + hashCode());
     }
 
 /*
@@ -76,6 +55,7 @@ public class DetailActivity extends AppCompatActivity {
                         PSF.R_CODE_SERVICE, new Intent(), 0);
 *//*
 
+
                 Intent intent = new Intent(this, StartingIntentService.class)
                         .putExtra(PSF.N_I_SERVICE, pendingIntent)
                         .putExtra(PSF.S_POST_URL, BASE_MEDIA_URL + mediaId + COMMENTS_PART + PSF.ACCESS_TOKEN)
@@ -86,37 +66,6 @@ public class DetailActivity extends AppCompatActivity {
             setViewsForReadyData();
     } // end of onStart-method \\
 */
-
-/*
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        // initially I've chosen ArrayList instead of List just to avoid type casting in this method \
-        outState.putParcelableArrayList(USER_COMMENT_LIST, userComments);
-        // calling this to superclass is needed for saving states of all views with id \
-        super.onSaveInstanceState(outState);
-        // just for note - onSaveInstanceState gets invoked before onStop \
-    }
-*/
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // clearing handler to avoid potential memory leaks \
-        handler.removeCallbacksAndMessages(null);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == PSF.R_CODE_SERVICE) {
-            // ensuring ourselves in fact of taking the response from previous activity's request \
-            L.l(CN + "current activity hash = " + hashCode());
-            L.l(CN + "sending activity hash = " + data.getIntExtra(PSF.S_ACTIVITY_HASH, 0));
-
-//            processNetworkResponse(data.getStringExtra(PSF.RESPONSE));
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 
     // MAIN ACTIONS ================================================================================
 
@@ -131,45 +80,28 @@ public class DetailActivity extends AppCompatActivity {
         // just a precaution \
         if (userComments == null) return;
 */
-
-        // i'm afraid that such work with View may potentially lead to memory leaks \
-/*
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setViewsForReadyData();
-            }
-        });
-*/
-        // so i decided to use handler myself and clear its callbacks in onStop \
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-//                setViewsForReadyData();
-            }
-        });
     }
 
     // invoked only at the very start of this activity - just to clean onCreate from the mess \
     private void setViewsForEmptyData() {
+
         setContentView(R.layout.activity_detail);
 
-        // getting access to all used views \
+        FrameLayout flMainPicture = (FrameLayout) findViewById(R.id.flMainPicture);
+        ImageView ivMainPicture = (ImageView) findViewById(R.id.ivMainPicture);
         TextView tvTitle = (TextView) findViewById(R.id.tvTitle);
         TextView tvLink = (TextView) findViewById(R.id.tvLink);
-        ImageView ivMainPicture = (ImageView) findViewById(R.id.ivMainPicture);
+        TextView tvPubDate = (TextView) findViewById(R.id.tvPubDate);
+        TextView tvSummary = (TextView) findViewById(R.id.tvSummary);
 
-        // getting passed info from the intent started by previous activity \
         String title = getIntent().getStringExtra(PSF.IE_TITLE);
         String link = getIntent().getStringExtra(PSF.IE_LINK);
-        // TODO: 17.09.2016 fix image URL - make it from depending on link \
-        String mainImageUrl = "https://radio-t.com/images/radio-t/rt512.jpg";
-
+        String pubDate = getIntent().getStringExtra(PSF.IE_PUB_DATE);
+        String summary = getIntent().getStringExtra(PSF.IE_SUMMARY);
 /*
-        as I know - all pictures in Instagram are squares \
-        so it is obvious to preset the needed dimensions to avoid redraw and blinking later\
+        as i see for now - all podcast pictures in radio-t.com are small squares 200 x 200 px \
+        so i decided to place this picture into container in the top of the screen \
 */
-
         // preparing the main picture - I decided to redo calculations for every configuration change \
         Point point = new Point();
         // strange method chain with void in the end - it just saves values to given point \
@@ -178,36 +110,26 @@ public class DetailActivity extends AppCompatActivity {
                 ? point.x : point.y;
         L.l(CN + "squareSide = " + squareSide);
 
-        if (ivMainPicture != null) {
-            // if not LinearLayout.LayoutParams - the app crashes here \
-            ivMainPicture.setLayoutParams(new LinearLayout.LayoutParams(squareSide, squareSide));
+        flMainPicture.setLayoutParams(new RelativeLayout.LayoutParams(squareSide, squareSide / 2));
 
-            // this library does here only one request and than keeps result in special cache \
-            Glide.with(this)
-                    .load(mainImageUrl)
-                    .crossFade()
-//                    .error(R.drawable.icon_for_downloading_error)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(ivMainPicture);
-        } else L.a(CN + "ivMainPicture == null");
+        // quick way of getting link for the picture - no time for additional site parsing \
+        String podCastIndex = link.substring(link.length() - 4, link.length() - 1);
+        String mainImageUrl = MAIN_IMAGE_URL_START + podCastIndex + MAIN_IMAGE_URL_END;
+//        String mainImageUrl = "https://radio-t.com/images/radio-t/rt510.jpg"; // example
+        L.l(CN + "podCastIndex  = " + podCastIndex);
 
-        if (tvTitle != null) tvTitle.setText(title);
-        else L.a(CN + "tvTitle == null");
+        // i've chosen Glide because it's faster then Picasso and it's recommended by Google \
+        Glide.with(this)
+                .load(mainImageUrl)
+                .placeholder(R.drawable.placeholder_waiting)
+                .crossFade(2000)
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .error(R.drawable.placeholder_error)
+                .into(ivMainPicture);
 
-        // preparing recycler - but its adapter will be set later when data is ready \
-        rvComments.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        tvTitle.setText(title);
+        tvLink.setText(link);
+        tvPubDate.setText(pubDate);
+        tvSummary.setText(summary);
     } // end of setViewsForEmptyData-method \\
-
-/*
-    // this method gets invoked only if we already have not null data for our recycler \
-    private void setViewsForReadyData() {
-        // removing busy indicator - now we're ready to show ReyclerView \
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.pbIndicator);
-        if (progressBar != null) progressBar.setVisibility(View.GONE);
-        // now all data is ready to build the list of it and show it to user \
-        rvComments.setAdapter(new CommentsRVAdapter(userComments, DetailActivity.this));
-        L.l(CN + "successful end of DetailActivity's starting chain");
-    }
-*/
-
 }

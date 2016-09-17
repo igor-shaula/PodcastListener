@@ -5,17 +5,24 @@
     style="@style/MatchMatch"
     tools:context=".activities.StartingActivity">
 
-    <ImageView
-        android:id="@+id/ivMainPicture"
-        android:layout_width="match_parent"
-        android:layout_height="360dp"
-        android:contentDescription="@string/image_for_current_podcast" />
+    <FrameLayout
+        android:id="@+id/flMainPicture"
+        style="@style/MatchWrap">
+
+        <ImageView
+            android:id="@+id/ivMainPicture"
+            android:layout_width="@dimen/defaultPictureSize"
+            android:layout_height="@dimen/defaultPictureSize"
+            android:layout_gravity="center"
+            android:contentDescription="@string/image_for_current_podcast" />
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tvTitle"
         style="@style/MatchWrap.Gravity_Center.MaxLines1"
-        android:layout_below="@id/ivMainPicture"
-        android:text="@string/initialTitle"
+        android:layout_below="@id/flMainPicture"
+        android:text="@string/noTitle"
         android:textAppearance="@android:style/TextAppearance.Large"
         android:textColor="@android:color/white" />
 
@@ -23,6 +30,30 @@
         android:id="@+id/tvLink"
         style="@style/MatchWrap.Gravity_Center.MaxLines1"
         android:layout_below="@id/tvTitle"
-        android:text="@string/defaultRssFeedUrl" />
+        android:text="@string/noLink" />
+
+    <TextView
+        android:id="@+id/tvPubDate"
+        style="@style/MatchWrap.Gravity_Center.MaxLines1"
+        android:layout_below="@id/tvLink"
+        android:text="@string/noPubDate" />
+
+    <MediaController
+        android:id="@+id/mcPlay"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/size_16"
+        android:layout_below="@+id/tvPubDate" />
+
+    <FrameLayout
+        style="@style/MatchMatch"
+        android:layout_below="@id/mcPlay">
+
+        <TextView
+            android:id="@+id/tvSummary"
+            style="@style/MatchWrap.Gravity_Center"
+            android:layout_gravity="center"
+            android:text="@string/noSummary" />
+
+    </FrameLayout>
 
 </RelativeLayout>

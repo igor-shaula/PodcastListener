@@ -26,8 +26,10 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
 
     // for my style of logging \
     private static final String CN = "StartingActivity ` ";
+
     private static final String HTTP = "http://";
     private static final String WWW = "www.";
+    private static final String INFO_ENTITY_ARRAY = "infoEntityArray";
 
     // to register / unregister receiver in this activity \
     private NetworkStateReceiver networkStateReceiver = new NetworkStateReceiver();
@@ -36,16 +38,29 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
 
     private TextView tvHeadLink;
 
+    // main data container declared here for saving/restoring while screen is rotated \
+    private InfoEntity[] infoEntityArray;
+
     // ALL CALLBACKS ===============================================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_starting);
 
         tvHeadLink = (TextView) findViewById(R.id.tvHeadLink);
 
         rssFeedUrl = HTTP + getString(R.string.defaultRssFeedUrl);
+
+        // trying to recreate data without asking network for what has already been delivered \
+        if (savedInstanceState != null) {
+            L.l(CN + "savedInstanceState is not null - trying to restore data without internet");
+            // we need to get data for a new instance of this activity that was recreated \
+            Parcelable[] parcelableArray = savedInstanceState.getParcelableArray(INFO_ENTITY_ARRAY);
+            infoEntityArray = getInfoEntityArrayFrom(parcelableArray);
+        }
+        L.l(CN + "created activity hashCode = " + hashCode());
     }
 
     /*
@@ -71,6 +86,15 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // initially I've chosen ArrayList instead of List just to avoid type casting in this method \
+        outState.putParcelableArray(INFO_ENTITY_ARRAY, infoEntityArray);
+        // calling this to superclass is needed for saving states of all views with id \
+        super.onSaveInstanceState(outState);
+        // just for note - onSaveInstanceState gets invoked before onStop \
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         unregisterReceiver(networkStateReceiver);
@@ -86,8 +110,9 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
             tvInetStatus.setText(getString(R.string.inetConnected));
             tvInetStatus.setTextColor(Color.GREEN);
 
-            // launching request to selected RSS-feed to get all data for the list of podcasts \
-            askRssFeed(rssFeedUrl);
+            if (infoEntityArray == null)
+                // launching request to selected RSS-feed to get all data for the list of podcasts \
+                askRssFeed(rssFeedUrl);
 
             tvHeadLink.setTextColor(Color.GREEN);
         } else {
@@ -180,11 +205,8 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
         rvPodCasts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         Parcelable[] parcelableArray = data.getParcelableArrayExtra(PSF.RSS_ITEMS_ARRAY);
-        // doing trick as we need the array of InfoEntity and we cannot simply cast this to needed array \
-        int arraySize = parcelableArray.length;
-        final InfoEntity[] infoEntityArray = new InfoEntity[arraySize];
-        for (int i = 0; i < arraySize; i++)
-            infoEntityArray[i] = (InfoEntity) parcelableArray[i];
+
+        infoEntityArray = getInfoEntityArrayFrom(parcelableArray);
 
         rvPodCasts.setAdapter(new RVAdapter(this, infoEntityArray));
 
@@ -196,6 +218,16 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
         });
     }
 
+    private InfoEntity[] getInfoEntityArrayFrom(Parcelable[] parcelableArray) {
+        // doing trick because we cannot simply cast Parcelable[] to InfoEntity[] \
+        int arraySize = parcelableArray.length;
+        InfoEntity[] infoEntityArray = new InfoEntity[arraySize];
+        for (int i = 0; i < arraySize; i++)
+            infoEntityArray[i] = (InfoEntity) parcelableArray[i];
+        return infoEntityArray;
+    }
+
+    // temporary launching next activity - later i'll change it to launch fragment \
     private void launchDetailsActivityFor(InfoEntity infoEntity) {
 
         Intent intent = new Intent(this, DetailActivity.class)
