@@ -1,5 +1,6 @@
 <resources>
 
+    <dimen name="size_minus_16">-16dp</dimen>
     <dimen name="size_minus_6">-6dp</dimen>
     <dimen name="size_minus_4">-4dp</dimen>
     <dimen name="size_minus_2">-2dp</dimen>

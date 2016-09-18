@@ -17,6 +17,7 @@ public class PSF {
     public static final String STARTING_INTENT_SERVICE = "StartingIntentService";
     public static final String MEDIA_PLAYER_SERVICE = "MediaPlayerService";
     public static final String INFO_ENTITY = "InfoEntity object";
+    public static final String AUTO_START = "whether or not start automatic playback";
 
     public static final String S_ACTIVITY_HASH = "hashCode of current activity instance";
 

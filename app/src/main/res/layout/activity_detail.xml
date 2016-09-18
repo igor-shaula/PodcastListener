@@ -38,18 +38,19 @@
         android:layout_below="@id/tvLink"
         android:text="@string/noPubDate" />
 
-    <!--
-        <MediaController
-            android:id="@+id/mcPlay"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size_64"
-            android:layout_below="@+id/tvPubDate" />
-    -->
+    <SeekBar
+        android:id="@+id/sbTimeline"
+        style="@style/WeightWidth"
+        android:layout_height="64dp"
+        android:layout_below="@id/tvPubDate"
+        android:layout_marginBottom="@dimen/size_minus_16"
+        android:progress="0"
+        android:tag="@string/app_name" />
 
     <LinearLayout
         android:id="@+id/llPlayerControls"
         style="@style/MatchWrap.Gravity_Center"
-        android:layout_below="@+id/tvPubDate"
+        android:layout_below="@+id/sbTimeline"
         android:orientation="horizontal">
 
         <Button

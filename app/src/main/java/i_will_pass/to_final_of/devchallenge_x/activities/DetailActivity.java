@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -39,7 +40,7 @@ public class DetailActivity extends AppCompatActivity implements
     private static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
     private static final String MAIN_IMAGE_URL_END = ".jpg";
 
-    //    private String mediaContentUrl;
+    // all data needed to start MediaPlayerService and make user happy \
     private InfoEntity infoEntity;
 
     // buttons with changing background \
@@ -79,7 +80,7 @@ public class DetailActivity extends AppCompatActivity implements
         // all starting findViewById & getIntent & Glide's job & setText are placed in this method \
         setInitialViewsAndListeners();
 
-        bindMediaPlayerService();
+        bindMediaPlayerService(false);
     }
 
     @Override
@@ -95,29 +96,37 @@ public class DetailActivity extends AppCompatActivity implements
 //        mediaPlayerService.unRegisterCaller(this);
     }
 
-    private boolean mediaMuted = false;
-
     @Override
     public void onClick(View view) {
+
+        // i just like notifying user about button press immediately \
+        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        vibrator.vibrate(100);
+//        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY); // not working
 
         switch (view.getId()) {
 
             case R.id.bPlayPause:
+                L.l(CN + "bPlayPause pressed, isPlaying = " + mediaPlayerService.isPlaying());
                 if (mediaPlayerService.isPlaying())
                     mediaPlayerService.pauseMedia(); // NullPointerException
                 else {
                     if (PSUtils.isMyServiceRunning(this, MediaPlayerService.class)) {
-                        mediaPlayerService.playMedia();
                         L.l(CN + "bPlayPause - service is already running");
+                        mediaPlayerService.playMedia();
                     } else {
-                        bindMediaPlayerService();
-                        L.a(CN + "mediaContentUrl is null before starting service !!!");
+                        L.l(CN + "bPlayPause - service was not running - we'll bind it now");
+                        bindMediaPlayerService(true);
                     }
                 }
                 break;
 
             case R.id.bStop:
-                // Unbind from the service
+                if (PSUtils.isMyServiceRunning(this, MediaPlayerService.class))
+                    mediaPlayerService.stopMedia();
+                else L.e(CN + "bStop - nothing to stop = service is not running");
+
+                // unbinding from the service
                 if (serviceBound) {
                     unbindService(serviceConnection);
                     serviceBound = false;
@@ -126,13 +135,9 @@ public class DetailActivity extends AppCompatActivity implements
                 break;
 
             case R.id.bMute:
-                if (mediaMuted) {
+                if (mediaPlayerService.isMediaMuted())
                     mediaPlayerService.unMuteMedia();
-                    mediaMuted = false;
-                } else {
-                    mediaPlayerService.muteMedia();
-                    mediaMuted = true;
-                }
+                else mediaPlayerService.muteMedia();
                 break;
 
             case R.id.bRewind:
@@ -170,7 +175,7 @@ public class DetailActivity extends AppCompatActivity implements
     public void stopDone() {
         bStop.setBackgroundResource(R.drawable.icon_media_stop_accent);
         bPlayPause.setBackgroundResource(R.drawable.icon_media_play_blue);
-        Toast.makeText(this, "Media service completely stopped", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "MediaPlayer completely stopped", Toast.LENGTH_SHORT).show();
     }
 
     // MAIN ACTIONS ================================================================================
@@ -238,10 +243,11 @@ public class DetailActivity extends AppCompatActivity implements
         bStop.setOnClickListener(this);
     } // end of setInitialViewsAndListeners-method \\
 
-    private void bindMediaPlayerService() {
+    private void bindMediaPlayerService(boolean autoStart) {
 
         Intent intent = new Intent(this, MediaPlayerService.class)
-                .putExtra(PSF.INFO_ENTITY, infoEntity);
+                .putExtra(PSF.INFO_ENTITY, infoEntity)
+                .putExtra(PSF.AUTO_START, autoStart);
 
         // binding, preparing and waiting for start playback \
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);

@@ -35,16 +35,20 @@ public class MediaPlayerService extends Service implements
     private static final String CN = "MediaPlayerService ` ";
     private static final String WIFI_TAG = "MediaPlayerService";
 
-    //    private String mediaContentUrl;
     private InfoEntity infoEntity;
 
     private MediaPlayer mediaPlayer;
+
+    private boolean autoStartPlayback;
 
     // for allowing to play only after asynchronous onPrepared-method completion \
     private boolean playerPrepared;
 
     // for allowing to continue playing after changes in onAudioFocusChange-method \
     private boolean mediaWasPlaying;
+
+    // for escaping situation when icon says it's muted but the sound is ON after new playback \
+    private boolean mediaMuted;
 
     private WifiManager.WifiLock wifiLock;
 
@@ -89,13 +93,14 @@ public class MediaPlayerService extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId) {
         L.l(CN + "onStartCommand: flags = " + flags + " & startId = " + startId);
 
-        prepareService(intent);
+//        prepareService(intent); // i decided to use only binding
 
         return START_NOT_STICKY; // to avoid writing -> if (intent != null) ... else stopSelf();
     } // end of onStartCommand-method \\
 
     @Override
     public IBinder onBind(Intent intent) {
+        L.l(CN + "onBind");
 
         prepareService(intent);
 
@@ -118,7 +123,11 @@ public class MediaPlayerService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer player) {
+        L.l(CN + "after onPrepared: " + System.currentTimeMillis());
+        // on Samsung S3 Duos with Android 4.4 this preparation takes around 1200-1300 milliseconds \
         playerPrepared = true;
+
+        if (autoStartPlayback) playMedia();
     }
 
     @Override
@@ -190,15 +199,12 @@ public class MediaPlayerService extends Service implements
     private void prepareService(Intent intent) {
 
         infoEntity = intent.getParcelableExtra(PSF.INFO_ENTITY);
+        autoStartPlayback = intent.getBooleanExtra(PSF.AUTO_START, false);
 
         prepareMediaPlayer();
 
         makeForeground();
-/*
-        if (intent.getAction().equals(ACTION_PLAY) && playerPrepared) {
-            mediaPlayer.start();
-        }
-*/
+
     } // end of prepareService-method \\
 
     // after this method our player is ready to use \
@@ -215,7 +221,7 @@ public class MediaPlayerService extends Service implements
             mediaPlayer.setDataSource(infoEntity.getMediaContentUrl());
 
             // i'd like to measure time of preparing stream \
-            L.e(CN + "before onPrepared: " + System.currentTimeMillis());
+            L.l(CN + "before onPrepared: " + System.currentTimeMillis());
             mediaPlayer.prepareAsync();
             // when this step is done - onPrepared will be called \
 
@@ -282,6 +288,8 @@ public class MediaPlayerService extends Service implements
             mediaPlayer.start();
             for (CallingComponent callingComponent : callingComponentList) {
                 callingComponent.playbackActive();
+                if (mediaMuted) callingComponent.mutingDone();
+                else callingComponent.mutingCancelled();
             }
         } else L.a(CN + "playMedia - trying to start not prepared player");
     }
@@ -296,9 +304,10 @@ public class MediaPlayerService extends Service implements
     }
 
     public void stopMedia() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            // stopping and releasing all media resources here \
-            mediaPlayer.stop();
+        // stopping and releasing all media resources here \
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
+            // if this method was invoked - the user or system had reason to clean resources \
             mediaPlayer.release();
             // explicitly telling GC to clean this heavy container with already useless data \
             mediaPlayer = null;
@@ -309,6 +318,10 @@ public class MediaPlayerService extends Service implements
                 callingComponent.stopDone();
             }
         } else L.a(CN + "playMedia - trying to stop while not playing");
+
+        for (CallingComponent callingComponent : callingComponentList) {
+            callingComponent.stopDone();
+        }
     }
 
     public void muteMedia() {
@@ -325,6 +338,8 @@ public class MediaPlayerService extends Service implements
                 callingComponent.mutingDone();
             }
         } else L.a(CN + "muteMedia - player is null");
+
+        mediaMuted = true;
     }
 
     public void unMuteMedia() {
@@ -336,7 +351,9 @@ public class MediaPlayerService extends Service implements
             for (CallingComponent callingComponent : callingComponentList) {
                 callingComponent.mutingCancelled();
             }
-        } else L.a(CN + "muteMedia - player is null");
+        } else L.a(CN + "unMuteMedia - player is null");
+
+        mediaMuted = false;
     }
 
     public void rewindMedia() {
@@ -352,8 +369,12 @@ public class MediaPlayerService extends Service implements
         if (mediaPlayer != null)
             return mediaPlayer.isPlaying();
         else {
-            L.a(CN + "muteMedia - player is null");
+            L.e(CN + "isPlaying - player is null");
             return false;
         }
+    }
+
+    public boolean isMediaMuted() {
+        return mediaMuted;
     }
 }
