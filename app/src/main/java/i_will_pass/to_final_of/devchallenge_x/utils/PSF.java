@@ -2,7 +2,7 @@ package i_will_pass.to_final_of.devchallenge_x.utils;
 
 /**
  * shared constants container \
- * <p/>
+ * <p>
  * PSF = Public Static Final \
  * all constants used in more than one class, are gathered here \
  */
@@ -15,7 +15,7 @@ public class PSF {
     public static final String RSS_HEAD_SUMMARY = "headSummary";
 
     public static final String STARTING_INTENT_SERVICE = "StartingIntentService";
-    public static final String MEDIA_PLAYER_SERVICE = "MediaPlayerService";
+    //    public static final String MEDIA_PLAYER_SERVICE = "MediaPlayerService";
     public static final String INFO_ENTITY = "InfoEntity object";
     public static final String AUTO_START = "whether or not start automatic playback";
 

@@ -16,8 +16,13 @@ import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import i_will_pass.to_final_of.devchallenge_x.R;
 import i_will_pass.to_final_of.devchallenge_x.activities.DetailActivity;
@@ -50,6 +55,15 @@ public class MediaPlayerService extends Service implements
     // for escaping situation when icon says it's muted but the sound is ON after new playback \
     private boolean mediaMuted;
 
+    // one way flag to avoid exceed actions \
+    private boolean askedFirstTime = true;
+
+    private int hoursDelta;
+
+    private long currentMillis;
+    private long durationMillis;
+    private String durationDateString;
+
     private WifiManager.WifiLock wifiLock;
 
     private final IBinder binder = new LocalBinder();
@@ -70,6 +84,8 @@ public class MediaPlayerService extends Service implements
         void mutingCancelled();
 
         void stopDone();
+
+        void updateProgress(float value);
     }
 
     /**
@@ -204,6 +220,7 @@ public class MediaPlayerService extends Service implements
         prepareMediaPlayer();
 
         makeForeground();
+
 
     } // end of prepareService-method \\
 
@@ -357,11 +374,23 @@ public class MediaPlayerService extends Service implements
     }
 
     public void rewindMedia() {
-
+        if (mediaPlayer != null) {
+            // one minute back - just for test \
+            int newMillis = (int) (currentMillis - 60 * 1000);
+            if (newMillis > 60 * 1000)
+                mediaPlayer.seekTo(newMillis);
+            else mediaPlayer.seekTo(0);
+        } else L.a(CN + "rewindMedia - player is null");
     }
 
     public void forwardMedia() {
-
+        if (mediaPlayer != null) {
+            // one minute back - just for test \
+            int newMillis = (int) (currentMillis + 60 * 1000);
+            if (newMillis < durationMillis - 60 * 1000)
+                mediaPlayer.seekTo(newMillis);
+            else mediaPlayer.seekTo(0);
+        } else L.a(CN + "forwardMedia - player is null");
     }
 
     // useful for avoiding flags for checking media controls state in calling activity \
@@ -377,4 +406,61 @@ public class MediaPlayerService extends Service implements
     public boolean isMediaMuted() {
         return mediaMuted;
     }
+
+    // gets invoked every second \
+    public String getStringProgress() {
+        if (mediaPlayer != null && playerPrepared) {
+            // i noticed that time got is shifted by constant number of hours, so i'll fix this now \
+
+            currentMillis = mediaPlayer.getCurrentPosition();
+            Date currentDate = new Date(currentMillis);
+            Calendar currentCalendar = Calendar.getInstance();
+            currentCalendar.setTime(currentDate);
+
+//            DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.US);
+            DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+            int currentHours = currentCalendar.get(Calendar.HOUR);
+
+            if (askedFirstTime) {
+
+                durationMillis = mediaPlayer.getDuration();
+                Date durationDate = new Date(durationMillis);
+                Calendar durationCalendar = Calendar.getInstance();
+                durationCalendar.setTime(durationDate);
+
+                int durationHours = durationCalendar.get(Calendar.HOUR);
+                L.l(CN + "durationHours were = " + durationHours);
+                L.l(CN + "currentHours were = " + currentHours);
+
+                if (currentHours != 0) hoursDelta = currentHours;
+
+                durationCalendar.set(Calendar.HOUR_OF_DAY, durationHours - hoursDelta);
+                durationDate = durationCalendar.getTime();
+                // this string is kept while current podcast activity lives \
+                durationDateString = formatter.format(durationDate);
+            }
+
+            currentCalendar.set(Calendar.HOUR, currentHours - hoursDelta);
+            currentDate = currentCalendar.getTime();
+            String currentDateString = formatter.format(currentDate);
+
+            // my be this mechanical shift was not beautiful, but i simply have no time to search \
+
+            askedFirstTime = false;
+            L.l(CN + "currentMillis = " + currentMillis);
+            L.l(CN + "durationMillis = " + durationMillis);
+
+            // fast way to update SeekBar \
+            for (CallingComponent callingComponent : callingComponentList) {
+                callingComponent.updateProgress((currentMillis / durationMillis) * 100);
+            }
+            // TODO: 18.09.2016 fix this - updateProgress does NOT work properly !!! \
+
+            return String.valueOf(currentDateString + " / " + durationDateString);
+        } else {
+//            L.e(CN + "getStringProgress - player is null");
+            return null;
+        }
+    } // end of getStringProgress-method \\
 }

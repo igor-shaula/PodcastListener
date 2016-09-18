@@ -39,18 +39,25 @@
         android:text="@string/noPubDate" />
 
     <SeekBar
-        android:id="@+id/sbTimeline"
-        style="@style/WeightWidth"
+        android:id="@+id/sbTiming"
+        style="@style/MatchWrap"
         android:layout_height="64dp"
         android:layout_below="@id/tvPubDate"
         android:layout_marginBottom="@dimen/size_minus_16"
+        android:max="100"
         android:progress="0"
         android:tag="@string/app_name" />
+
+    <TextView
+        android:id="@+id/tvTiming"
+        style="@style/MatchWrap.Gravity_Center.MaxLines1"
+        android:layout_below="@id/sbTiming"
+        android:textAppearance="@android:style/TextAppearance.Medium" />
 
     <LinearLayout
         android:id="@+id/llPlayerControls"
         style="@style/MatchWrap.Gravity_Center"
-        android:layout_below="@+id/sbTimeline"
+        android:layout_below="@+id/tvTiming"
         android:orientation="horizontal">
 
         <Button
@@ -100,6 +107,7 @@
             android:id="@+id/tvSummary"
             style="@style/MatchWrap.Gravity_Center"
             android:layout_gravity="center"
+            android:layout_margin="@dimen/size_16"
             android:text="@string/noSummary" />
 
     </FrameLayout>

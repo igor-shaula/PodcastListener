@@ -26,5 +26,6 @@
     <string name="failedSummary">Check your Internet settings, please</string>
     <string name="image_for_current_podcast">image for current podcast</string>
     <string name="notificationSubText">"Click here to open podcast player"</string>
+    <string name="defaultProgress">00:00:00 / hh:mm:ss</string>
 
 </resources>

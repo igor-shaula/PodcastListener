@@ -15,11 +15,15 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import i_will_pass.to_final_of.devchallenge_x.R;
 import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
@@ -36,6 +40,7 @@ public class DetailActivity extends AppCompatActivity implements
         View.OnClickListener, MediaPlayerService.CallingComponent {
 
     private static final String CN = "DetailActivity ` ";
+    private static final String TIMELINE_TIMER = "TimelineTimer";
 
     private static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
     private static final String MAIN_IMAGE_URL_END = ".jpg";
@@ -43,6 +48,11 @@ public class DetailActivity extends AppCompatActivity implements
     // all data needed to start MediaPlayerService and make user happy \
     private InfoEntity infoEntity;
 
+    TextView tvTiming;
+
+    Timer progressTimer;
+
+    SeekBar sbTiming;
     // buttons with changing background \
     private Button bMute;
     private Button bPlayPause;
@@ -63,6 +73,9 @@ public class DetailActivity extends AppCompatActivity implements
             mediaPlayerService = binder.getService();
             mediaPlayerService.registerCaller(DetailActivity.this);
             serviceBound = true;
+
+            progressTimer = new Timer(TIMELINE_TIMER, true);
+            progressTimer.schedule(new TimelineTimerTask(), 0, 1000);
         }
 
         @Override
@@ -70,6 +83,23 @@ public class DetailActivity extends AppCompatActivity implements
             serviceBound = false;
         }
     };
+
+    private class TimelineTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String progress = mediaPlayerService.getStringProgress();
+                    if (progress == null)
+                        tvTiming.setText(getString(R.string.defaultProgress));
+                    else
+                        tvTiming.setText(progress);
+                }
+            });
+        }
+    }
 
     // ALL CALLBACKS ===============================================================================
 
@@ -94,6 +124,7 @@ public class DetailActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
 //        mediaPlayerService.unRegisterCaller(this);
+        progressTimer.cancel();
     }
 
     @Override
@@ -178,6 +209,14 @@ public class DetailActivity extends AppCompatActivity implements
         Toast.makeText(this, "MediaPlayer completely stopped", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void updateProgress(float value) {
+        // works from TimelineTimerTask \
+        L.l(CN + "updateProgress value = " + value);
+//        sbTiming.setProgress(50);
+        sbTiming.setProgress((int) value);
+    }
+
     // MAIN ACTIONS ================================================================================
 
     // invoked only at the very start of this activity - just to clean onCreate from the mess \
@@ -191,6 +230,8 @@ public class DetailActivity extends AppCompatActivity implements
         TextView tvLink = (TextView) findViewById(R.id.tvLink);
         TextView tvPubDate = (TextView) findViewById(R.id.tvPubDate);
         TextView tvSummary = (TextView) findViewById(R.id.tvSummary);
+        sbTiming = (SeekBar) findViewById(R.id.sbTiming);
+        tvTiming = (TextView) findViewById(R.id.tvTiming);
         bMute = (Button) findViewById(R.id.bMute);
         bPlayPause = (Button) findViewById(R.id.bPlayPause);
         bStop = (Button) findViewById(R.id.bStop);
@@ -235,6 +276,23 @@ public class DetailActivity extends AppCompatActivity implements
         tvLink.setText(link);
         tvPubDate.setText(infoEntity.getPubDate());
         tvSummary.setText(infoEntity.getSummary());
+
+        sbTiming.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         bMute.setOnClickListener(this);
         bRewind.setOnClickListener(this);
