@@ -231,13 +231,14 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
     private void launchDetailsActivityFor(InfoEntity infoEntity) {
 
         Intent intent = new Intent(this, DetailActivity.class)
-                .putExtra(PSF.IE_TITLE, infoEntity.getTitle())
-                .putExtra(PSF.IE_LINK, infoEntity.getLink())
-                .putExtra(PSF.IE_PUB_DATE, infoEntity.getPubDate())
-                .putExtra(PSF.IE_MEDIA_CONTENT_URL, infoEntity.getMediaContentUrl())
-                .putExtra(PSF.IE_FILE_SIZE, infoEntity.getFileSize())
-                .putExtra(PSF.IE_TYPE, infoEntity.getType())
-                .putExtra(PSF.IE_SUMMARY, infoEntity.getSummary());
+//                .putExtra(PSF.IE_TITLE, infoEntity.getTitle())
+//                .putExtra(PSF.IE_LINK, infoEntity.getLink())
+//                .putExtra(PSF.IE_PUB_DATE, infoEntity.getPubDate())
+//                .putExtra(PSF.IE_MEDIA_CONTENT_URL, infoEntity.getMediaContentUrl())
+//                .putExtra(PSF.IE_FILE_SIZE, infoEntity.getFileSize())
+//                .putExtra(PSF.IE_TYPE, infoEntity.getType())
+//                .putExtra(PSF.IE_SUMMARY, infoEntity.getSummary());
+                .putExtra(PSF.INFO_ENTITY, infoEntity);
         // here we're going to the next level activity \
         startActivity(intent);
     }

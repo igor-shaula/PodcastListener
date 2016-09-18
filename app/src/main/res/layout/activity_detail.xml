@@ -54,29 +54,39 @@
 
         <Button
             android:id="@+id/bMute"
-            style="@style/MediaControlButton"
+            style="?buttonBarButtonStyle"
+            android:layout_width="@dimen/size_32"
+            android:layout_height="@dimen/size_32"
+            android:layout_margin="@dimen/size_16"
             android:background="@drawable/icon_media_mute" />
 
         <Button
             android:id="@+id/bRewind"
-            style="@style/MediaControlButton"
+            style="?buttonBarButtonStyle"
+            android:layout_width="@dimen/size_48"
+            android:layout_height="@dimen/size_48"
             android:background="@drawable/icon_media_rew_blue" />
 
         <Button
             android:id="@+id/bPlayPause"
-            style="@style/MediaControlButton"
+            style="?buttonBarButtonStyle"
             android:layout_width="@dimen/size_96"
             android:layout_height="@dimen/size_96"
             android:background="@drawable/icon_media_play_blue" />
 
         <Button
             android:id="@+id/bForward"
-            style="@style/MediaControlButton"
+            style="?buttonBarButtonStyle"
+            android:layout_width="@dimen/size_48"
+            android:layout_height="@dimen/size_48"
             android:background="@drawable/icon_media_ff_blue" />
 
         <Button
             android:id="@+id/bStop"
-            style="@style/MediaControlButton"
+            style="?buttonBarButtonStyle"
+            android:layout_width="@dimen/size_32"
+            android:layout_height="@dimen/size_32"
+            android:layout_margin="@dimen/size_16"
             android:background="@drawable/icon_media_stop" />
 
     </LinearLayout>

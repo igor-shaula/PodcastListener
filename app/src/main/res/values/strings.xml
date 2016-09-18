@@ -25,5 +25,6 @@
     <string name="failedTitle">Failed getting new data</string>
     <string name="failedSummary">Check your Internet settings, please</string>
     <string name="image_for_current_podcast">image for current podcast</string>
+    <string name="notificationSubText">"Click here to open podcast player"</string>
 
 </resources>

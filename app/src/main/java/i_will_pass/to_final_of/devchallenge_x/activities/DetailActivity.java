@@ -13,14 +13,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import i_will_pass.to_final_of.devchallenge_x.R;
+import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
 import i_will_pass.to_final_of.devchallenge_x.services.MediaPlayerService;
 import i_will_pass.to_final_of.devchallenge_x.utils.L;
 import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
@@ -30,26 +31,24 @@ import i_will_pass.to_final_of.devchallenge_x.utils.PSUtils;
  * represents and manages second screen of UI - details of chosen podcast \
  * also controls dedicated media-service, which is doing the main job of this application \
  */
-public class DetailActivity extends AppCompatActivity implements View.OnClickListener {
+public class DetailActivity extends AppCompatActivity implements
+        View.OnClickListener, MediaPlayerService.CallingComponent {
 
     private static final String CN = "DetailActivity ` ";
 
     private static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
     private static final String MAIN_IMAGE_URL_END = ".jpg";
 
-    private String mediaContentUrl;
+    //    private String mediaContentUrl;
+    private InfoEntity infoEntity;
 
-//    private MediaPlayer mediaPlayer;
-
-//    private boolean prepared;
-
-    private boolean isPlaying;
+    // buttons with changing background \
     private Button bMute;
     private Button bPlayPause;
     private Button bStop;
 
-    private MediaPlayerService mService;
-    boolean mBound = false;
+    private MediaPlayerService mediaPlayerService;
+    private boolean serviceBound;
 
     /**
      * Defines callbacks for service binding, passed to bindService()
@@ -57,19 +56,21 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
+            mediaPlayerService = binder.getService();
+            mediaPlayerService.registerCaller(DetailActivity.this);
+            serviceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            serviceBound = false;
         }
     };
+
+    // ALL CALLBACKS ===============================================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,80 +79,99 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         // all starting findViewById & getIntent & Glide's job & setText are placed in this method \
         setInitialViewsAndListeners();
 
-        // TODO: 17.09.2016 add MediaController and make visible controls on screen \
-        MediaController mediaController = new MediaController(this, false);
-        mediaController.setAnchorView(findViewById(R.id.llPlayerControls));
+        bindMediaPlayerService();
     }
 
-/*
     @Override
     protected void onStart() {
         super.onStart();
-        // we need explicit link for onStop and other possible controlling methods \
-        mediaPlayer = new MediaPlayer();
-        prepareMediaPlayer(mediaPlayer);
+        if (mediaPlayerService != null)
+            mediaPlayerService.registerCaller(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // stopping and releasing all media resources here \
-        if (mediaPlayer.isPlaying())
-            mediaPlayer.stop();
-        mediaPlayer.release();
-        // explicitly telling GC to clean this heavy container with already useless data \
-        mediaPlayer = null;
+//        mediaPlayerService.unRegisterCaller(this);
     }
-*/
+
+    private boolean mediaMuted = false;
 
     @Override
     public void onClick(View view) {
 
         switch (view.getId()) {
-            case R.id.bMute:
 
-                break;
-            case R.id.bRewind:
-
-                break;
             case R.id.bPlayPause:
-                if (isPlaying) {
-                    bPlayPause.setBackgroundResource(R.drawable.icon_media_play_blue);
-                    mService.stopMedia(); // NullPointerException
-                } else {
-                    bPlayPause.setBackgroundResource(R.drawable.icon_media_pause_blue);
-                    Intent intent = new Intent(this, MediaPlayerService.class)
-                            .putExtra(PSF.IE_MEDIA_CONTENT_URL, mediaContentUrl);
-
+                if (mediaPlayerService.isPlaying())
+                    mediaPlayerService.pauseMedia(); // NullPointerException
+                else {
                     if (PSUtils.isMyServiceRunning(this, MediaPlayerService.class)) {
-
-                        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-                        mService.playMedia();
+                        mediaPlayerService.playMedia();
                         L.l(CN + "bPlayPause - service is already running");
-
                     } else {
-                        // media will be played as soon as player is prepared in the service \
-                        if (mediaContentUrl != null) {
-                            startService(intent);
-                        } else
-                            L.a(CN + "mediaContentUrl is null before starting service !!!");
+                        bindMediaPlayerService();
+                        L.a(CN + "mediaContentUrl is null before starting service !!!");
                     }
                 }
-                // as our view is changed anyway - we have to update the flag for a new click \
-                isPlaying = !isPlaying;
                 break;
-            case R.id.bForward:
 
-                break;
             case R.id.bStop:
                 // Unbind from the service
-                if (mBound) {
+                if (serviceBound) {
                     unbindService(serviceConnection);
-                    mBound = false;
+                    serviceBound = false;
+//                    mediaPlayerService.unRegisterCaller(this);
                 }
+                break;
+
+            case R.id.bMute:
+                if (mediaMuted) {
+                    mediaPlayerService.unMuteMedia();
+                    mediaMuted = false;
+                } else {
+                    mediaPlayerService.muteMedia();
+                    mediaMuted = true;
+                }
+                break;
+
+            case R.id.bRewind:
+                mediaPlayerService.rewindMedia();
+                break;
+
+            case R.id.bForward:
+                mediaPlayerService.forwardMedia();
                 break;
         }
     } // end of onClick-method \\
+
+    @Override
+    public void playbackActive() {
+        bPlayPause.setBackgroundResource(R.drawable.icon_media_pause_blue);
+        bStop.setBackgroundResource(R.drawable.icon_media_stop);
+    }
+
+    @Override
+    public void playbackPaused() {
+        bPlayPause.setBackgroundResource(R.drawable.icon_media_play_blue);
+    }
+
+    @Override
+    public void mutingDone() {
+        bMute.setBackgroundResource(R.drawable.icon_media_mute_accent);
+    }
+
+    @Override
+    public void mutingCancelled() {
+        bMute.setBackgroundResource(R.drawable.icon_media_mute);
+    }
+
+    @Override
+    public void stopDone() {
+        bStop.setBackgroundResource(R.drawable.icon_media_stop_accent);
+        bPlayPause.setBackgroundResource(R.drawable.icon_media_play_blue);
+        Toast.makeText(this, "Media service completely stopped", Toast.LENGTH_SHORT).show();
+    }
 
     // MAIN ACTIONS ================================================================================
 
@@ -167,16 +187,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         TextView tvPubDate = (TextView) findViewById(R.id.tvPubDate);
         TextView tvSummary = (TextView) findViewById(R.id.tvSummary);
         bMute = (Button) findViewById(R.id.bMute);
-        Button bRewind = (Button) findViewById(R.id.bRewind);
         bPlayPause = (Button) findViewById(R.id.bPlayPause);
-        Button bForward = (Button) findViewById(R.id.bForward);
         bStop = (Button) findViewById(R.id.bStop);
-
-        String title = getIntent().getStringExtra(PSF.IE_TITLE);
-        String link = getIntent().getStringExtra(PSF.IE_LINK);
-        String pubDate = getIntent().getStringExtra(PSF.IE_PUB_DATE);
-        String summary = getIntent().getStringExtra(PSF.IE_SUMMARY);
-        mediaContentUrl = getIntent().getStringExtra(PSF.IE_MEDIA_CONTENT_URL);
+        Button bRewind = (Button) findViewById(R.id.bRewind);
+        Button bForward = (Button) findViewById(R.id.bForward);
 /*
         as i see for now - all podcast pictures in radio-t.com are small squares 200 x 200 px \
         so i decided to place this picture into container in the top of the screen \
@@ -191,10 +205,16 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
         flMainPicture.setLayoutParams(new RelativeLayout.LayoutParams(squareSide, squareSide / 2));
 
+        infoEntity = getIntent().getParcelableExtra(PSF.INFO_ENTITY);
+        if (infoEntity == null) {
+            L.a(CN + "infoEntity is null -> nothing can be done without data");
+            return;
+        }
         // quick way of getting link for the picture - no time for additional site parsing \
+        String link = infoEntity.getLink();
         String podCastIndex = link.substring(link.length() - 4, link.length() - 1);
         String mainImageUrl = MAIN_IMAGE_URL_START + podCastIndex + MAIN_IMAGE_URL_END;
-//        String mainImageUrl = "https://radio-t.com/images/radio-t/rt510.jpg"; // example
+        // example of mainImageUrl: "https://radio-t.com/images/radio-t/rt510.jpg";
         L.l(CN + "podCastIndex  = " + podCastIndex);
 
         // i've chosen Glide because it's faster then Picasso and it's recommended by Google \
@@ -206,10 +226,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 .error(R.drawable.placeholder_error)
                 .into(ivMainPicture);
 
-        tvTitle.setText(title);
+        tvTitle.setText(infoEntity.getTitle());
         tvLink.setText(link);
-        tvPubDate.setText(pubDate);
-        tvSummary.setText(summary);
+        tvPubDate.setText(infoEntity.getPubDate());
+        tvSummary.setText(infoEntity.getSummary());
 
         bMute.setOnClickListener(this);
         bRewind.setOnClickListener(this);
@@ -218,50 +238,12 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         bStop.setOnClickListener(this);
     } // end of setInitialViewsAndListeners-method \\
 
-/*
-    private void prepareMediaPlayer(MediaPlayer mediaPlayer) {
+    private void bindMediaPlayerService() {
 
-        mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(MediaPlayer mediaPlayer, int i, int i1) {
-                L.l(CN + "onInfo: i = " + i + " , i1 = " + i1);
-                return false;
-            }
-        });
+        Intent intent = new Intent(this, MediaPlayerService.class)
+                .putExtra(PSF.INFO_ENTITY, infoEntity);
 
-        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-                L.e(CN + "onError: i = " + i + " , i1 = " + i1);
-                prepared = false;
-                return false;
-            }
-        });
-
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                L.e(CN + "after onPrepared: " + System.currentTimeMillis());
-                prepared = true;
-
-                mediaPlayer.start();
-            }
-        });
-
-        try {
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setDataSource(mediaContentUrl);
-
-            // i'd like to measure time of preparing stream \
-            L.e(CN + "before onPrepared: " + System.currentTimeMillis());
-            mediaPlayer.prepareAsync();
-            // when this step is done - onPrepared will be called \
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    } // end of prepareMediaPlayer-method \\
-*/
-
-
+        // binding, preparing and waiting for start playback \
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
 }

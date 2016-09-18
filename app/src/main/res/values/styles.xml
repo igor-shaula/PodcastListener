@@ -77,10 +77,18 @@
 
     <!-- others -->
 
+<!--
     <style name="MediaControlButton">
-        <item name="android:layout_margin">@dimen/size_4</item>
         <item name="android:layout_width">@dimen/size_48</item>
         <item name="android:layout_height">@dimen/size_48</item>
+        <item name="android:layout_margin">@dimen/size_4</item>
     </style>
+
+    <style name="MediaControlButtonSmall">
+        <item name="android:layout_width">@dimen/size_32</item>
+        <item name="android:layout_height">@dimen/size_32</item>
+        <item name="android:layout_margin">@dimen/size_12</item>
+    </style>
+-->
 
 </resources>

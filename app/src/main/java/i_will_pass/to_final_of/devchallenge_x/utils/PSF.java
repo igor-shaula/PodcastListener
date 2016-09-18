@@ -16,14 +16,7 @@ public class PSF {
 
     public static final String STARTING_INTENT_SERVICE = "StartingIntentService";
     public static final String MEDIA_PLAYER_SERVICE = "MediaPlayerService";
-    // IE = InfoEntity
-    public static final String IE_TITLE = "InfoEntity title";
-    public static final String IE_LINK = "InfoEntity link";
-    public static final String IE_PUB_DATE = "InfoEntity publication date";
-    public static final String IE_MEDIA_CONTENT_URL = "InfoEntity media content URL";
-    public static final String IE_FILE_SIZE = "InfoEntity file size";
-    public static final String IE_TYPE = "InfoEntity type";
-    public static final String IE_SUMMARY = "InfoEntity summary";
+    public static final String INFO_ENTITY = "InfoEntity object";
 
     public static final String S_ACTIVITY_HASH = "hashCode of current activity instance";
 
