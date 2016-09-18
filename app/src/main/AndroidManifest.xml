@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="i_will_pass.to_final_of.devchallenge_x">
@@ -16,7 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
         <activity android:name=".activities.StartingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,15 +22,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activities.DetailActivity" />
 
-        <!--<receiver android:name=".receiver.NetworkStateReceiver" />-->
-        <!--this receiver is registered/unregistered dynamically & locally in activity -->
+        <!-- <receiver android:name=".receiver.NetworkStateReceiver" /> -->
+        <!-- this receiver is registered/unregistered dynamically & locally in activity -->
 
         <service
             android:name=".services.StartingIntentService"
             android:exported="false" />
+
+        <service
+            android:name=".services.MediaPlayerService"
+            android:exported="false"/>
 
     </application>
 

@@ -1,11 +1,16 @@
 package i_will_pass.to_final_of.devchallenge_x.activities;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Point;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.MediaController;
@@ -15,68 +20,70 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import java.io.IOException;
-
 import i_will_pass.to_final_of.devchallenge_x.R;
+import i_will_pass.to_final_of.devchallenge_x.services.MediaPlayerService;
 import i_will_pass.to_final_of.devchallenge_x.utils.L;
 import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
+import i_will_pass.to_final_of.devchallenge_x.utils.PSUtils;
 
 /**
  * represents and manages second screen of UI - details of chosen podcast \
+ * also controls dedicated media-service, which is doing the main job of this application \
  */
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String CN = "DetailActivity ` ";
+
     private static final String MAIN_IMAGE_URL_START = "https://radio-t.com/images/radio-t/rt";
     private static final String MAIN_IMAGE_URL_END = ".jpg";
 
     private String mediaContentUrl;
 
-    private MediaPlayer mediaPlayer;
+//    private MediaPlayer mediaPlayer;
+
+//    private boolean prepared;
+
+    private boolean isPlaying;
+    private Button bMute;
+    private Button bPlayPause;
+    private Button bStop;
+
+    private MediaPlayerService mService;
+    boolean mBound = false;
+
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // all starting findViewById & getIntent & Glide's job & setText are placed in this method \
-        setInitialViews();
+        setInitialViewsAndListeners();
 
+        // TODO: 17.09.2016 add MediaController and make visible controls on screen \
         MediaController mediaController = new MediaController(this, false);
-        mediaController.setAnchorView(findViewById(R.id.mcPlay));
-
+        mediaController.setAnchorView(findViewById(R.id.llPlayerControls));
     }
 
 /*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // decided to do this job here and not in onCreate because here we deal with visible results \
-        if (userComments == null) {
-            // of course if data is absent - we have to launch network request right now \
-            String mediaId = getIntent().getStringExtra(PSF.MEDIA_ID);
-            // either way of processing network job is working well - i left all of them in reserve\
-
-            // 1 - via good old HttpUrlConnection launched from IntentService in its worker thread \
-            if (PSUtils.isMyServiceRunning(this, StartingIntentService.class))
-                L.l(CN + "instance of StartingIntentService is already working");
-            else {
-                PendingIntent pendingIntent = createPendingResult(PSF.R_CODE_SERVICE, new Intent(), 0);
-*//*
-                // i also tried this way - but it doesn't work \
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
-                        PSF.R_CODE_SERVICE, new Intent(), 0);
-*//*
-                Intent intent = new Intent(this, StartingIntentService.class)
-                        .putExtra(PSF.N_I_SERVICE, pendingIntent)
-                        .putExtra(PSF.S_POST_URL, BASE_MEDIA_URL + mediaId + COMMENTS_PART + PSF.ACCESS_TOKEN)
-                        .putExtra(PSF.S_ACTIVITY_HASH, hashCode());
-                startService(intent);
-            }
-        } else // userComments != null - so we have data and should is it now \
-            setViewsForReadyData();
-    } // end of onStart-method \\
-*/
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -95,24 +102,61 @@ public class DetailActivity extends AppCompatActivity {
         // explicitly telling GC to clean this heavy container with already useless data \
         mediaPlayer = null;
     }
+*/
+
+    @Override
+    public void onClick(View view) {
+
+        switch (view.getId()) {
+            case R.id.bMute:
+
+                break;
+            case R.id.bRewind:
+
+                break;
+            case R.id.bPlayPause:
+                if (isPlaying) {
+                    bPlayPause.setBackgroundResource(R.drawable.icon_media_play_blue);
+                    mService.stopMedia(); // NullPointerException
+                } else {
+                    bPlayPause.setBackgroundResource(R.drawable.icon_media_pause_blue);
+                    Intent intent = new Intent(this, MediaPlayerService.class)
+                            .putExtra(PSF.IE_MEDIA_CONTENT_URL, mediaContentUrl);
+
+                    if (PSUtils.isMyServiceRunning(this, MediaPlayerService.class)) {
+
+                        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+                        mService.playMedia();
+                        L.l(CN + "bPlayPause - service is already running");
+
+                    } else {
+                        // media will be played as soon as player is prepared in the service \
+                        if (mediaContentUrl != null) {
+                            startService(intent);
+                        } else
+                            L.a(CN + "mediaContentUrl is null before starting service !!!");
+                    }
+                }
+                // as our view is changed anyway - we have to update the flag for a new click \
+                isPlaying = !isPlaying;
+                break;
+            case R.id.bForward:
+
+                break;
+            case R.id.bStop:
+                // Unbind from the service
+                if (mBound) {
+                    unbindService(serviceConnection);
+                    mBound = false;
+                }
+                break;
+        }
+    } // end of onClick-method \\
 
     // MAIN ACTIONS ================================================================================
 
-    // runs in worker thread - from IntentService or OkHttp or any other network agent \
-    private void processNetworkResponse(String response) {
-
-/*
-        ResponseParser responseParser = new ResponseParser(PSF.DETAIL_ACTIVITY);
-        //noinspection unchecked
-        userComments = (ArrayList<UserComment>) responseParser.parse(response);
-
-        // just a precaution \
-        if (userComments == null) return;
-*/
-    }
-
     // invoked only at the very start of this activity - just to clean onCreate from the mess \
-    private void setInitialViews() {
+    private void setInitialViewsAndListeners() {
 
         setContentView(R.layout.activity_detail);
 
@@ -122,6 +166,11 @@ public class DetailActivity extends AppCompatActivity {
         TextView tvLink = (TextView) findViewById(R.id.tvLink);
         TextView tvPubDate = (TextView) findViewById(R.id.tvPubDate);
         TextView tvSummary = (TextView) findViewById(R.id.tvSummary);
+        bMute = (Button) findViewById(R.id.bMute);
+        Button bRewind = (Button) findViewById(R.id.bRewind);
+        bPlayPause = (Button) findViewById(R.id.bPlayPause);
+        Button bForward = (Button) findViewById(R.id.bForward);
+        bStop = (Button) findViewById(R.id.bStop);
 
         String title = getIntent().getStringExtra(PSF.IE_TITLE);
         String link = getIntent().getStringExtra(PSF.IE_LINK);
@@ -161,8 +210,15 @@ public class DetailActivity extends AppCompatActivity {
         tvLink.setText(link);
         tvPubDate.setText(pubDate);
         tvSummary.setText(summary);
-    } // end of setInitialViews-method \\
 
+        bMute.setOnClickListener(this);
+        bRewind.setOnClickListener(this);
+        bPlayPause.setOnClickListener(this);
+        bForward.setOnClickListener(this);
+        bStop.setOnClickListener(this);
+    } // end of setInitialViewsAndListeners-method \\
+
+/*
     private void prepareMediaPlayer(MediaPlayer mediaPlayer) {
 
         mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
@@ -177,6 +233,7 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
                 L.e(CN + "onError: i = " + i + " , i1 = " + i1);
+                prepared = false;
                 return false;
             }
         });
@@ -185,6 +242,8 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
                 L.e(CN + "after onPrepared: " + System.currentTimeMillis());
+                prepared = true;
+
                 mediaPlayer.start();
             }
         });
@@ -202,4 +261,7 @@ public class DetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     } // end of prepareMediaPlayer-method \\
+*/
+
+
 }

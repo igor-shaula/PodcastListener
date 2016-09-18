@@ -167,7 +167,7 @@ public class StartingActivity extends AppCompatActivity implements NetworkStateR
                         PSF.R_CODE_SERVICE, new Intent(), 0);
 */
             Intent intent = new Intent(this, StartingIntentService.class)
-                    .putExtra(PSF.N_I_SERVICE, pendingIntent)
+                    .putExtra(PSF.STARTING_INTENT_SERVICE, pendingIntent)
                     .putExtra(PSF.RSS_FEED_URL, sUrl)
                     .putExtra(PSF.S_ACTIVITY_HASH, hashCode());
             startService(intent);

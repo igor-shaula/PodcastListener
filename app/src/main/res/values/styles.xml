@@ -77,9 +77,10 @@
 
     <!-- others -->
 
-    <style name="IconSmall">
-        <item name="android:layout_width">@dimen/squareIconSmallSize</item>
-        <item name="android:layout_height">@dimen/squareIconSmallSize</item>
+    <style name="MediaControlButton">
+        <item name="android:layout_margin">@dimen/size_4</item>
+        <item name="android:layout_width">@dimen/size_48</item>
+        <item name="android:layout_height">@dimen/size_48</item>
     </style>
 
 </resources>

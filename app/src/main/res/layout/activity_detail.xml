@@ -46,16 +46,44 @@
             android:layout_below="@+id/tvPubDate" />
     -->
 
-    <View
-        android:id="@+id/mcPlay"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/size_64"
+    <LinearLayout
+        android:id="@+id/llPlayerControls"
+        style="@style/MatchWrap.Gravity_Center"
         android:layout_below="@+id/tvPubDate"
-        android:background="@color/primary" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bMute"
+            style="@style/MediaControlButton"
+            android:background="@drawable/icon_media_mute" />
+
+        <Button
+            android:id="@+id/bRewind"
+            style="@style/MediaControlButton"
+            android:background="@drawable/icon_media_rew_blue" />
+
+        <Button
+            android:id="@+id/bPlayPause"
+            style="@style/MediaControlButton"
+            android:layout_width="@dimen/size_96"
+            android:layout_height="@dimen/size_96"
+            android:background="@drawable/icon_media_play_blue" />
+
+        <Button
+            android:id="@+id/bForward"
+            style="@style/MediaControlButton"
+            android:background="@drawable/icon_media_ff_blue" />
+
+        <Button
+            android:id="@+id/bStop"
+            style="@style/MediaControlButton"
+            android:background="@drawable/icon_media_stop" />
+
+    </LinearLayout>
 
     <FrameLayout
         style="@style/MatchMatch"
-        android:layout_below="@id/mcPlay">
+        android:layout_below="@id/llPlayerControls">
 
         <TextView
             android:id="@+id/tvSummary"

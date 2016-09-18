@@ -90,7 +90,7 @@ public class StartingIntentService extends IntentService {
             }
         }
         // opening intent as envelope and getting our PendingIntent to send it back to its activity \
-        PendingIntent pendingIntent = intent.getParcelableExtra(PSF.N_I_SERVICE);
+        PendingIntent pendingIntent = intent.getParcelableExtra(PSF.STARTING_INTENT_SERVICE);
         try {
             Intent newIntent = new Intent()
                     .putExtra(PSF.RSS_HEAD_TITLE, headTitle)

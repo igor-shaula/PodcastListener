@@ -13,9 +13,10 @@ public class PSF {
     public static final String RSS_HEAD_TITLE = "headTitle";
     public static final String RSS_HEAD_LINK = "headLink";
     public static final String RSS_HEAD_SUMMARY = "headSummary";
-    //    public static final String RSS_TAG_COUNTER = "tagCounter";
-    public static final String N_I_SERVICE = "StartingIntentService";
 
+    public static final String STARTING_INTENT_SERVICE = "StartingIntentService";
+    public static final String MEDIA_PLAYER_SERVICE = "MediaPlayerService";
+    // IE = InfoEntity
     public static final String IE_TITLE = "InfoEntity title";
     public static final String IE_LINK = "InfoEntity link";
     public static final String IE_PUB_DATE = "InfoEntity publication date";
