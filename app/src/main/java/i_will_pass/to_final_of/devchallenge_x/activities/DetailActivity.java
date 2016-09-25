@@ -172,11 +172,11 @@ public class DetailActivity extends AppCompatActivity implements
                 break;
 
             case R.id.bRewind:
-                mediaPlayerService.rewindMedia();
+                mediaPlayerService.rewindMediaBack();
                 break;
 
             case R.id.bForward:
-                mediaPlayerService.forwardMedia();
+                mediaPlayerService.rewindMediaForward();
                 break;
         }
     } // end of onClick-method \\
@@ -212,9 +212,8 @@ public class DetailActivity extends AppCompatActivity implements
     @Override
     public void updateProgress(float value) {
         // works from TimelineTimerTask \
-        L.l(CN + "updateProgress value = " + value);
-//        sbTiming.setProgress(50);
         sbTiming.setProgress((int) value);
+        // after that onProgressChanged-method in its listener gets invoked - we have to go there \
     }
 
     // MAIN ACTIONS ================================================================================
@@ -280,17 +279,22 @@ public class DetailActivity extends AppCompatActivity implements
         sbTiming.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+                L.l(CN + "onProgressChanged: i = " + i + ", b = " + b);
+                if (!b) // initiated by setProgress-method, not by user \
+                    mediaPlayerService.seekTo(i);
+                // user-initiated progress is worked in onStopTrackingTouch - when setting is done \
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                L.l(CN + "onStartTrackingTouch");
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                L.l(CN + "onStopTrackingTouch");
+                // works in case when user sets progress himself - after touch was released \
+                mediaPlayerService.seekTo(seekBar.getProgress());
             }
         });
 

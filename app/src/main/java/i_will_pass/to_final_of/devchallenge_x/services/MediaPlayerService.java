@@ -60,8 +60,8 @@ public class MediaPlayerService extends Service implements
 
     private int hoursDelta;
 
-    private long currentMillis;
-    private long durationMillis;
+    private int currentMillis;
+    private int durationMillis;
     private String durationDateString;
 
     private WifiManager.WifiLock wifiLock;
@@ -373,24 +373,26 @@ public class MediaPlayerService extends Service implements
         mediaMuted = false;
     }
 
-    public void rewindMedia() {
+    public void rewindMediaBack() {
         if (mediaPlayer != null) {
-            // one minute back - just for test \
-            int newMillis = (int) (currentMillis - 60 * 1000);
-            if (newMillis > 60 * 1000)
-                mediaPlayer.seekTo(newMillis);
+            // either to the previous supplied time label or 10% back if it's absent \
+            long delta = durationMillis / 10;
+            int newMillis = (int) (currentMillis - delta);
+            // for not exceeding the left edge of timeline \
+            if (newMillis > (int) delta) mediaPlayer.seekTo(newMillis);
             else mediaPlayer.seekTo(0);
-        } else L.a(CN + "rewindMedia - player is null");
+        } else L.a(CN + "rewindMediaBack - player is null");
     }
 
-    public void forwardMedia() {
+    public void rewindMediaForward() {
         if (mediaPlayer != null) {
-            // one minute back - just for test \
-            int newMillis = (int) (currentMillis + 60 * 1000);
-            if (newMillis < durationMillis - 60 * 1000)
-                mediaPlayer.seekTo(newMillis);
-            else mediaPlayer.seekTo(0);
-        } else L.a(CN + "forwardMedia - player is null");
+            // either to the next supplied time label or 10% forward if it's absent \
+            long delta = durationMillis / 10;
+            int newMillis = (int) (currentMillis + delta);
+            // for not exceeding the right edge of timeline \
+            if (newMillis < (int) (durationMillis - delta)) mediaPlayer.seekTo(newMillis);
+            else mediaPlayer.seekTo(durationMillis);
+        } else L.a(CN + "rewindMediaForward - player is null");
     }
 
     // useful for avoiding flags for checking media controls state in calling activity \
@@ -448,12 +450,12 @@ public class MediaPlayerService extends Service implements
             // my be this mechanical shift was not beautiful, but i simply have no time to search \
 
             askedFirstTime = false;
-            L.l(CN + "currentMillis = " + currentMillis);
-            L.l(CN + "durationMillis = " + durationMillis);
+//            L.l(CN + "currentMillis = " + currentMillis + " & durationMillis = " + durationMillis);
+            float proportion = ((float) currentMillis / (float) durationMillis) * 100;
+//            L.l(CN + "proportion = " + proportion);
 
-            // fast way to update SeekBar \
             for (CallingComponent callingComponent : callingComponentList) {
-                callingComponent.updateProgress((currentMillis / durationMillis) * 100);
+                callingComponent.updateProgress(proportion);
             }
             // TODO: 18.09.2016 fix this - updateProgress does NOT work properly !!! \
 
@@ -463,4 +465,9 @@ public class MediaPlayerService extends Service implements
             return null;
         }
     } // end of getStringProgress-method \\
+
+    public void seekTo(int progress) {
+        // by default the maximum value is set to 100 - so here we are working with percentage \
+        mediaPlayer.seekTo(durationMillis * progress / 100);
+    }
 }

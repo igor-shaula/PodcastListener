@@ -38,26 +38,28 @@
         android:layout_below="@id/tvLink"
         android:text="@string/noPubDate" />
 
+    <TextView
+        android:id="@+id/tvTiming"
+        style="@style/MatchWrap.Gravity_Center.MaxLines1"
+        android:layout_below="@id/tvPubDate"
+        android:layout_marginTop="@dimen/size_8"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textColor="@color/accent" />
+
     <SeekBar
         android:id="@+id/sbTiming"
         style="@style/MatchWrap"
         android:layout_height="64dp"
-        android:layout_below="@id/tvPubDate"
+        android:layout_below="@id/tvTiming"
         android:layout_marginBottom="@dimen/size_minus_16"
         android:max="100"
         android:progress="0"
         android:tag="@string/app_name" />
 
-    <TextView
-        android:id="@+id/tvTiming"
-        style="@style/MatchWrap.Gravity_Center.MaxLines1"
-        android:layout_below="@id/sbTiming"
-        android:textAppearance="@android:style/TextAppearance.Medium" />
-
     <LinearLayout
         android:id="@+id/llPlayerControls"
         style="@style/MatchWrap.Gravity_Center"
-        android:layout_below="@+id/tvTiming"
+        android:layout_below="@+id/sbTiming"
         android:orientation="horizontal">
 
         <Button
