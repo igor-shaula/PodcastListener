@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "i_will_pass.to_final_of.devchallenge_x"
+        applicationId "igor.shaula.podcast_listener"
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1

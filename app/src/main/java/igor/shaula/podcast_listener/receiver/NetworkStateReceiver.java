@@ -1,10 +1,10 @@
-package i_will_pass.to_final_of.devchallenge_x.receiver;
+package igor.shaula.podcast_listener.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import i_will_pass.to_final_of.devchallenge_x.utils.PSUtils;
+import igor.shaula.podcast_listener.utils.PSUtils;
 
 /**
  * general receiver - reacts on internet availability change and trigger requests \

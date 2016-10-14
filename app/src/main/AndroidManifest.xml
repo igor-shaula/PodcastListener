@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="i_will_pass.to_final_of.devchallenge_x">
+    package="igor.shaula.podcast_listener">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -16,24 +16,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.StartingActivity">
+        <activity android:name="igor.shaula.podcast_listener.activities.StartingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.DetailActivity" />
+        <activity android:name="igor.shaula.podcast_listener.activities.DetailActivity" />
 
         <!-- <receiver android:name=".receiver.NetworkStateReceiver" /> -->
         <!-- this receiver is registered/unregistered dynamically & locally in activity -->
 
         <service
-            android:name=".services.StartingIntentService"
+            android:name="igor.shaula.podcast_listener.services.StartingIntentService"
             android:exported="false" />
 
         <service
-            android:name=".services.MediaPlayerService"
+            android:name="igor.shaula.podcast_listener.services.MediaPlayerService"
             android:exported="false" />
 
     </application>

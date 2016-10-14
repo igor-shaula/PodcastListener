@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x;
+package igor.shaula.podcast_listener;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

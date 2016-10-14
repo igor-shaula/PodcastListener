@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.activities;
+package igor.shaula.podcast_listener.activities;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,12 +25,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import i_will_pass.to_final_of.devchallenge_x.R;
-import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
-import i_will_pass.to_final_of.devchallenge_x.services.MediaPlayerService;
-import i_will_pass.to_final_of.devchallenge_x.utils.L;
-import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
-import i_will_pass.to_final_of.devchallenge_x.utils.PSUtils;
+import igor.shaula.podcast_listener.R;
+import igor.shaula.podcast_listener.entity.InfoEntity;
+import igor.shaula.podcast_listener.services.MediaPlayerService;
+import igor.shaula.podcast_listener.utils.L;
+import igor.shaula.podcast_listener.utils.PSF;
+import igor.shaula.podcast_listener.utils.PSUtils;
 
 /**
  * represents and manages second screen of UI - details of chosen podcast \

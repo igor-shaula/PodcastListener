@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.services;
+package igor.shaula.podcast_listener.services;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -16,11 +16,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import i_will_pass.to_final_of.devchallenge_x.R;
-import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
-import i_will_pass.to_final_of.devchallenge_x.networking.HttpUrlConnAgent;
-import i_will_pass.to_final_of.devchallenge_x.utils.L;
-import i_will_pass.to_final_of.devchallenge_x.utils.PSF;
+import igor.shaula.podcast_listener.R;
+import igor.shaula.podcast_listener.entity.InfoEntity;
+import igor.shaula.podcast_listener.networking.HttpUrlConnAgent;
+import igor.shaula.podcast_listener.utils.L;
+import igor.shaula.podcast_listener.utils.PSF;
 
 /**
  * asks RSS-feed for data and parses what was received - all job is done in a worker thread \

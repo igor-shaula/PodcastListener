@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.rv_adapter;
+package igor.shaula.podcast_listener.rv_adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import i_will_pass.to_final_of.devchallenge_x.R;
-import i_will_pass.to_final_of.devchallenge_x.entity.InfoEntity;
-import i_will_pass.to_final_of.devchallenge_x.utils.L;
+import igor.shaula.podcast_listener.R;
+import igor.shaula.podcast_listener.entity.InfoEntity;
+import igor.shaula.podcast_listener.utils.L;
 
 /**
  * adapts incoming data set to be shown into RecyclerView \

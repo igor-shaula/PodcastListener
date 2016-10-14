@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.rv_listener;
+package igor.shaula.podcast_listener.rv_listener;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -6,7 +6,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import i_will_pass.to_final_of.devchallenge_x.utils.L;
+import igor.shaula.podcast_listener.utils.L;
 
 /**
  * this class lets us react on clicking RecyclerView items \

@@ -1,4 +1,4 @@
-package i_will_pass.to_final_of.devchallenge_x.networking;
+package igor.shaula.podcast_listener.networking;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 
-import i_will_pass.to_final_of.devchallenge_x.utils.L;
+import igor.shaula.podcast_listener.utils.L;
 
 /**
  * gives ability to process network request without using libraries \
