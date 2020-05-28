@@ -13,7 +13,8 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.core.app.NotificationCompat;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -249,7 +250,7 @@ public class MediaPlayerService extends Service implements
         // setting CPU wake lock ON \
         mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         // setting WiFi wake lock ON \
-        wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+        wifiLock = ((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, WIFI_TAG);
         wifiLock.acquire();
 

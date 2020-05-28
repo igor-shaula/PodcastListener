@@ -9,7 +9,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -18,6 +17,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -266,8 +267,8 @@ public class DetailActivity extends AppCompatActivity implements
         Glide.with(this)
                 .load(mainImageUrl)
                 .placeholder(R.drawable.placeholder_waiting)
-                .crossFade(2000)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+//                .crossFade(2000)
+//                .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .error(R.drawable.placeholder_error)
                 .into(ivMainPicture);
 

@@ -1,10 +1,11 @@
 package igor.shaula.podcast_listener.rv_listener;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import igor.shaula.podcast_listener.utils.L;
 
